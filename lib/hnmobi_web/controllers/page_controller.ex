@@ -6,9 +6,12 @@ defmodule HnmobiWeb.PageController do
   alias Hnmobi.Main.Mailer
   alias Hnmobi.Main.HackerNews
   alias Hnmobi.Main.Mercury
+  alias Hnmobi.Users
+  alias Hnmobi.Users.User
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    changeset = Users.change_user(%User{})
+    render(conn, "index.html", changeset: changeset)
   end
 
   def show(conn, %{"messenger" => localVar}) do
@@ -25,11 +28,13 @@ defmodule HnmobiWeb.PageController do
     render(conn, "top.html", items: result, email: email)
   end
 
-  def save_email(conn, %{"save" => %{"email" => email}}) do
+  def create_user(conn, %{"user" => user}) do
+    Users.create_or_get_user(user)
+    |> Users.create_login_link
+    |> Users.send_login_link
+
     conn
-    |> put_session(:email, email)
-    |> put_flash(:info, "Mail updated!")
-    |> redirect(to: "/top")
+    |> redirect(to: page_path(conn, :index))
   end
 
   def convert(conn, %{"hnid" => hnid}) do
