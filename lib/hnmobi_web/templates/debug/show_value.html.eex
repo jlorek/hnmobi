@@ -1,0 +1,2 @@
+<h1 class="cover-heading">Debug - good luck!</h1>
+<p><%= @value %></p>

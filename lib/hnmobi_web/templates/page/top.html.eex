@@ -1,0 +1,30 @@
+<div>
+  <%= form_for @conn, page_path(@conn, :save_email), [as: :save], fn f -> %>
+    <div class="form-group">
+      <label for="save[email]">Email</label>
+      <div class="input-group">
+        <%= text_input f, :email, value: @email, class: "form-control" %>
+        <span class="input-group-btn">
+          <%= submit "Save", class: "btn btn-default" %>
+        </span>
+      </div>
+      <p class="help-block">This should be your Kindle email address.</p>
+    </div>
+  <% end %>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Top Hackernews articles</h3>
+  </div>
+  <div class="panel-body">
+    <%= for item <- @items do %>
+      <p>
+        <a href="<%= page_path(@conn, :send, item["id"]) %>">Send</a> |
+        <a href="<%= page_path(@conn, :mobi, item["id"]) %>">Load</a> |
+        <a href="<%= page_path(@conn, :convert, item["id"]) %>">Show</a> |
+        <a href="<%= item["url"] %>"><%= item["title"] %></a>
+      </p>
+    <% end %>
+  </div>
+</div>

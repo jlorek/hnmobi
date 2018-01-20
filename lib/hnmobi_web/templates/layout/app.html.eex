@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <%# <meta name="viewport" content="width=device-width, initial-scale=1"> %>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="<%= static_path(@conn, "/favicon.ico") %>">
+
+    <title>fetch |> convert |> deliver</title>
+    <link href='https://fonts.googleapis.com/css?family=Leckerli+One' rel='stylesheet'>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+  </head>
+
+  <body class="text-left">
+
+    <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+      <header class="masthead mb-auto">
+        <div class="inner">
+          <h3 class="masthead-brand">hackernews.mobi</h3>
+          <nav class="nav nav-masthead justify-content-center">
+            <a class="nav-link <%= active_class(@conn, page_path(@conn, :index)) %>" href="<%= page_path(@conn, :index) %>">Home</a>
+            <a class="nav-link <%= active_class(@conn, page_path(@conn, :top)) %>" href="<%= page_path(@conn, :top) %>">Articles</a>
+          </nav>
+        </div>
+      </header>
+
+      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+
+      <main role="main" class="inner cover">
+        <%= render @view_module, @view_template, assigns %>
+      </main>
+
+      <footer class="mastfoot mt-auto">
+        <div class="inner">
+          <p># build with <a href="https://en.wikipedia.org/wiki/Darmstadt">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by <a href="https://twitter.com/jsbeckr">jens</a> &amp; <a href="https://twitter.com/jnslrk">jens</a></p>
+        </div>
+      </footer>
+    </div>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <script>require("js/app").App.init()</script>
+  </body>
+</html>
