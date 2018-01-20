@@ -1,3 +1,6 @@
+# Our stuff
+/log
+
 # App artifacts
 /_build
 /db
