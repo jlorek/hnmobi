@@ -2,6 +2,22 @@ defmodule Hnmobi.Main.Mailer do
   use Swoosh.Mailer, otp_app: :hnmobi
 end
 
+defmodule Hnmobi.Main.LoginEmail do
+  import Swoosh.Email
+  require Logger
+
+  def deliver(test) do
+    Logger.info "Composing LOGIN mail for '#{test.user.email}''"
+
+    new()
+    |> to(test.user.email)
+    |> from("delivery@hackernews.mobi")
+    |> subject("Your Login Link for hackernews.mobi")
+    |> html_body("<h3>Your login link: <a href=\"#{test.link}\">Login</a></h3>")
+    |> text_body("Your login link: #{test.link}")
+  end
+end
+
 defmodule Hnmobi.Main.UserEmail do
   require Logger
   import Swoosh.Email

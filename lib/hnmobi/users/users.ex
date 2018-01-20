@@ -7,6 +7,10 @@ defmodule Hnmobi.Users do
   alias Hnmobi.Repo
 
   alias Hnmobi.Users.User
+  alias Hnmobi.Main.LoginEmail
+  alias Hnmobi.Main.Mailer
+
+  require Logger
 
   @doc """
   Returns the list of users.
@@ -37,6 +41,10 @@ defmodule Hnmobi.Users do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def get_user_by_email(email) do
+    user = Repo.get_by(User, email: email)
+  end
+
   @doc """
   Creates a user.
 
@@ -55,12 +63,14 @@ defmodule Hnmobi.Users do
     |> Repo.insert()
   end
 
-  def create_login_link(_user) do 
-    "https://google.de"
+  def create_login_link(test) do 
+    %{test | link: "https://google.de"}
   end
 
-  def send_login_link(link) do
-    
+  def send_login_link(test) do
+    Logger.info("TEST")
+    IO.inspect(test)
+    LoginEmail.deliver(test) |> Mailer.deliver()
   end
 
   @doc """

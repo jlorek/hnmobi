@@ -1,3 +1,7 @@
+defmodule Test do
+  defstruct user: nil, link: nil
+end
+
 defmodule HnmobiWeb.PageController do
   use HnmobiWeb, :controller
   require Logger
@@ -29,13 +33,26 @@ defmodule HnmobiWeb.PageController do
   end
 
   def create_user(conn, %{"user" => user}) do
-    Users.create_or_get_user(user)
+    db_user = Users.get_user_by_email(user["email"])
+    db_user = case is_nil(db_user) do
+      true ->
+        Users.create_user(user)
+        Users.get_user_by_email(user["email"])
+      false ->
+        db_user
+    end
+
+    test = %Test{user: db_user}
+    test
     |> Users.create_login_link
     |> Users.send_login_link
 
     conn
+    |> put_flash(:info, "Check your emails!")
     |> redirect(to: page_path(conn, :index))
   end
+
+
 
   def convert(conn, %{"hnid" => hnid}) do
     article = HackerNews.details(hnid)
