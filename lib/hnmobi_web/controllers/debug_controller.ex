@@ -2,6 +2,8 @@ defmodule HnmobiWeb.DebugController do
   require Logger
   use HnmobiWeb, :controller
 
+  alias Hnmobi.Main.Ebook
+
   def index(conn, _params) do
     render conn, "index.html"
   end

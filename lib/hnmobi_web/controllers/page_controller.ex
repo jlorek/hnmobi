@@ -2,8 +2,10 @@ defmodule HnmobiWeb.PageController do
   use HnmobiWeb, :controller
   require Logger
 
-  alias Sample.UserEmail
-  alias Sample.Mailer
+  alias Hnmobi.Main.UserEmail
+  alias Hnmobi.Main.Mailer
+  alias Hnmobi.Main.HackerNews
+  alias Hnmobi.Main.Mercury
 
   def index(conn, _params) do
     render(conn, "index.html")

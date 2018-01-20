@@ -1,5 +1,8 @@
-defmodule Ebook do
+defmodule Hnmobi.Main.Ebook do
   require Logger
+
+  alias Hnmobi.Main.Mercury
+  alias Hnmobi.Main.HackerNews
   
   def generate do
     Logger.info "Starting ebook generation..."

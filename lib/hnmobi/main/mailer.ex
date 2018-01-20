@@ -1,8 +1,8 @@
-defmodule Sample.Mailer do
+defmodule Hnmobi.Main.Mailer do
   use Swoosh.Mailer, otp_app: :hnmobi
 end
 
-defmodule Sample.UserEmail do
+defmodule Hnmobi.Main.UserEmail do
   require Logger
   import Swoosh.Email
 
