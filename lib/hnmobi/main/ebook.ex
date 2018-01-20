@@ -9,6 +9,7 @@ defmodule Hnmobi.Main.Ebook do
 
     {:ok, temp_path} = Temp.mkdir
 
+    # TODO: handle hacker news api timeout
     articles = HackerNews.top
     |> Enum.map(&prepare_html/1)
     # pre filter like .pdf
@@ -28,15 +29,16 @@ defmodule Hnmobi.Main.Ebook do
     mobi_path
   end
 
-  defp prepare_html(%{"url" => url, "title" => title} = meta) do
+  defp prepare_html(%{"id" => id, "url" => url, "title" => title} = meta) do
     content = Mercury.reader(url)
-    unless is_nil content do
+    unless content_empty(content) do
       {:ok, html_path } = Temp.path %{suffix: ".html"}
       Logger.info "html_path = #{html_path}"
       
       {:ok, html_handle} = File.open html_path, [:write, :utf8]
       # https://www.w3schools.com/cssref/pr_print_pagebb.asp
       IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
+      IO.write html_handle, "<a name=\"#{id}\"></a>"
       IO.write html_handle, "<p>Source: <a href=\"#{url}\">#{url}</a></p>"
       IO.write html_handle, "<img src=\"http://www.mustacheridesla.com/mustache.png\" />"
       IO.write html_handle, content
@@ -44,6 +46,15 @@ defmodule Hnmobi.Main.Ebook do
       %{ meta: meta, html_path: html_path }
     else
       nil
+    end
+  end
+
+  defp content_empty(content) do
+    case content do
+      nil -> true
+      # returned by http://maps.arcgis.com/apps/StorytellingSwipe/index.html?appid=e5160a8d1d3649f09a756c317bd0b56b
+      "<div></div>" -> true
+      _ -> false
     end
   end
 
@@ -84,7 +95,7 @@ defmodule Hnmobi.Main.Ebook do
     
     {:ok, html_handle} = File.open html_path, [:write, :utf8]
     IO.write html_handle, "<h1 style=\"page-break-before:always\">Articles</h1>"
-    Enum.each articles, &IO.write(html_handle, "<h2>#{&1["title"]}</h2>")
+    Enum.each articles, &IO.write(html_handle, "<h2># <a href=\"##{&1["id"]}\">#{&1["title"]}</a></h2>")
     File.close html_handle
     html_path
   end
