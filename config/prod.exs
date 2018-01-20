@@ -31,9 +31,13 @@ config :hnmobi, HnmobiWeb.Endpoint,
   server: true,
   root: "."
 
-# Do not print debug messages in production
-# config :logger, level: :info
-config :logger, :console, format: "[$level] $message\n"
+# Logger
+config :logger,
+  backends: [:console, {LoggerFileBackend, :file_logger}]
+
+config :logger, :file_logger,
+  path: "log/default.log",
+  level: :info
 
 # ## SSL Support
 #
