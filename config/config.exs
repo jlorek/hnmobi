@@ -22,7 +22,7 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-config :hnmobi, Sample.Mailer,
+config :hnmobi, Hnmobi.Main.Mailer,
   adapter: Swoosh.Adapters.Sendgrid,
     api_key: "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"
 

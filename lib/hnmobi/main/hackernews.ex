@@ -1,4 +1,4 @@
-defmodule HackerNews do
+defmodule Hnmobi.Main.HackerNews do
   use Tesla
   require Logger
 

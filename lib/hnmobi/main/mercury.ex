@@ -1,4 +1,4 @@
-defmodule Mercury do
+defmodule Hnmobi.Main.Mercury do
   use Tesla
   require Logger
 

@@ -14,7 +14,7 @@ defmodule Hnmobi.Application do
       supervisor(HnmobiWeb.Endpoint, []),
       # Start your own worker by calling: Hnmobi.Worker.start_link(arg1, arg2, arg3)
       # worker(Hnmobi.Worker, [arg1, arg2, arg3]),
-      worker(Hnmobi.Scheduler, [])
+      worker(Hnmobi.Main.Scheduler, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
