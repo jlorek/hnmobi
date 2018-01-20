@@ -174,7 +174,7 @@ https://hexdocs.pm/phoenix/deployment.html
 $ mix deps.get --only prod
 $ MIX_ENV=prod mix compile
 $ cd assets && npm install && brunch build --production
-$ mix phx.digest
+$ MIX_ENV=prod mix phx.digest
 $ MIX_ENV=prod mix ecto.migrate
 ```
 for testing the server
