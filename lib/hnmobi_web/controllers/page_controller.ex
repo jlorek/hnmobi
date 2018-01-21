@@ -46,6 +46,7 @@ defmodule HnmobiWeb.PageController do
 
     test = %Test{user: db_user}
     test
+    |> Users.invalidate_old_links
     |> Users.create_login_link
     |> Users.send_login_link
 
@@ -70,9 +71,6 @@ defmodule HnmobiWeb.PageController do
     hash = user["login_hash"]["hash"]
     {:ok, db_user} = Users.get_user_by_hash(hash)
     user = Map.pop(user, "login_hash")
-    Logger.info "USER USER USER"
-    IO.inspect(user)
-    IO.inspect(db_user)
     {_, user} = user
     Users.update_user(db_user, user) 
 

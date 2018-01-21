@@ -78,6 +78,11 @@ defmodule Hnmobi.Users do
     %{test | link: link}
   end
 
+  def invalidate_old_links(test) do
+    from(lh in LoginHash, where: lh.user_id == ^test.user.id) |> Repo.delete_all
+    test
+  end
+
   def send_login_link(test) do
     LoginEmail.deliver(test) |> Mailer.deliver()
   end
