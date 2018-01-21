@@ -11,7 +11,8 @@ defmodule Hnmobi.Main.Ebook do
 
     # TODO: handle hacker news api timeout
     articles = HackerNews.top
-    |> Enum.map(&prepare_html/1)
+    # |> Enum.map(&prepare_html/1)
+    |> Enum.map(fn meta -> prepare_html(meta, true) end)
     # pre filter like .pdf
     # and create link list?
     # open graph tags parsen
@@ -20,7 +21,7 @@ defmodule Hnmobi.Main.Ebook do
     toc_path = prepare_toc Enum.map(articles, fn article -> article.meta end)
 
     html_paths = Enum.map(articles, fn result -> result.html_path end)
-    html_paths = [prepare_header |[toc_path | html_paths]] ++ [prepare_footer]
+    html_paths = [prepare_header() |[toc_path | html_paths]] ++ [prepare_footer()]
     
     epub_path = prepare_single_epub temp_path, html_paths
     mobi_path = prepare_mobi epub_path
@@ -29,24 +30,50 @@ defmodule Hnmobi.Main.Ebook do
     mobi_path
   end
 
-  defp prepare_html(%{"id" => id, "url" => url, "title" => title} = meta) do
+  defp prepare_html(meta, debug \\ false)
+
+  defp prepare_html(%{"id" => id, "url" => url, "title" => title} = meta, debug) do
     content = Mercury.reader(url)
     unless content_empty(content) do
-      {:ok, html_path } = Temp.path %{suffix: ".html"}
-      Logger.info "html_path = #{html_path}"
-      
-      {:ok, html_handle} = File.open html_path, [:write, :utf8]
-      # https://www.w3schools.com/cssref/pr_print_pagebb.asp
-      IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
-      IO.write html_handle, "<a name=\"#{id}\"></a>"
-      IO.write html_handle, "<p>Source: <a href=\"#{url}\">#{url}</a></p>"
-      IO.write html_handle, "<img src=\"http://www.mustacheridesla.com/mustache.png\" />"
-      IO.write html_handle, content
-      File.close html_handle
-      %{ meta: meta, html_path: html_path }
+      case Temp.path %{suffix: ".html"} do
+        {:ok, html_path } ->
+          Logger.info "html_path = #{html_path}"
+          case File.open html_path, [:write, :utf8] do
+            {:ok, html_handle} ->
+              if debug, do: add_article_metadata(html_handle, meta)
+              # https://www.w3schools.com/cssref/pr_print_pagebb.asp
+              IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
+              IO.write html_handle, "<a name=\"#{id}\"></a>"
+              IO.write html_handle, "<img src=\"http://www.mustacheridesla.com/mustache.png\" />"
+              IO.write html_handle, content
+              File.close html_handle
+              %{ meta: meta, html_path: html_path }
+            _ ->
+              Logger.error "Could not open html article file"
+              nil
+          end
+        _ ->
+          Logger.error "Could not generate html article path"
+          nil
+      end
     else
       nil
     end
+  end
+
+  defp prepare_html(_article, _debug) do
+    Logger.warn "Article has missing 'id', 'url' or 'title'"
+    nil
+  end
+
+  defp add_article_metadata(html_handle, meta)do
+    IO.write html_handle, "<h1 style=\"page-break-before:always\">#{meta["title"]}</h1>"
+    IO.write html_handle, "<p>Source: <a href=\"#{meta["url"]}\">#{meta["url"]}</a></p>"
+    IO.write html_handle, "<p>ID: #{meta["id"]}</p>"
+    IO.write html_handle, "<p>By: #{meta["by"]}</p>"
+    IO.write html_handle, "<p>Score: #{meta["score"]}</p>"
+    IO.write html_handle, "<p>Time: #{meta["time"]}</p>"
+    IO.write html_handle, "<p>Type: #{meta["type"]}</p>"
   end
 
   defp content_empty(content) do
@@ -58,11 +85,6 @@ defmodule Hnmobi.Main.Ebook do
     end
   end
 
-  defp prepare_html(article) do
-    Logger.warn "Article has missing 'url' or 'title'"
-    nil
-  end
-
   defp prepare_header() do
       html_path = Temp.path! %{suffix: ".html"}
       Logger.info "header_path = #{html_path}"
@@ -71,8 +93,6 @@ defmodule Hnmobi.Main.Ebook do
       timestamp = current_time |> Timex.to_unix
       date = current_time |> Timex.format!("{D}. {Mfull} '{YY}")
       time = current_time |> Timex.format!("{h24}:{m}:{s}")
-      
-      {:ok, html_handle} = File.open html_path, [:write, :utf8]
 
       case File.open html_path, [:write, :utf8] do
         {:ok, html_handle} ->
@@ -141,7 +161,9 @@ defmodule Hnmobi.Main.Ebook do
     Logger.info "Executing shell command '#{shell_arguments}'"
     pandoc_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]
     pandoc_output = elem(pandoc_process, 0)
+    Logger.info "- pandoc output start -"
     Logger.info pandoc_output
+    Logger.info "- pandoc output start -"
 
     if String.contains?(pandoc_output, "WARNING") do
         Logger.warn "Pandoc was not pleased but did the job!"
@@ -165,6 +187,10 @@ defmodule Hnmobi.Main.Ebook do
     Logger.info "- kinglegen output start -"
     Logger.info kindleget_output
     Logger.info "- kinglegen output end -"
+
+    if String.contains?(kindleget_output, "Warning") do
+      Logger.warn "Kindlegen had some warnings you should look into"
+  end
 
     if String.contains?(kindleget_output, "Error") do
         Logger.error "Kindlegen was not happy at all..."

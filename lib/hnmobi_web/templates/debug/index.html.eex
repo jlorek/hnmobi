@@ -1,1 +1,2 @@
 <h1 class="cover-heading">Debug - good luck!</h1>
+<a href="<%= debug_path(@conn, :download) %>">Download</a>
