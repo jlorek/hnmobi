@@ -3,10 +3,24 @@ use Mix.Config
 config :hnmobi, :pandoc_path, "pandoc"
 config :hnmobi, :kindlegen_path, "kindlegen"
 
-config :hnmobi, Hnmobi.Scheduler,
-  jobs: [
-    {"* * * * *", fn -> IO.puts "Every minute i'm hustlin -- Scheduler" end},
+# http://www.nncron.ru/help/EN/working/cron-format.htm
+config :hnmobi, Hnmobi.Main.Scheduler,
+jobs: [
+  heartbeat: [
+    schedule: "* * * * *",
+    task: {Hnmobi.Main.Scheduler, :heartbeat, []}
+  ],
+  daily: [
+    # running on midnight
+    schedule: "0 0 * * *",
+    task: {Hnmobi.Main.Scheduler, :send_daily, []}
+  ],
+  weekly: [
+    # running on saturday midnight
+    schedule: "0 0 * * 6",
+    task {Hnmobi.Main.Scheduler, :send_weekly, []}
   ]
+]
 
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
