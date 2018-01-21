@@ -18,7 +18,7 @@ jobs: [
   weekly: [
     # running on saturday midnight
     schedule: "0 0 * * 6",
-    task {Hnmobi.Main.Scheduler, :send_weekly, []}
+    task: {Hnmobi.Main.Scheduler, :send_weekly, []}
   ]
 ]
 
