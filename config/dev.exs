@@ -3,10 +3,13 @@ use Mix.Config
 config :hnmobi, :pandoc_path, "pandoc"
 config :hnmobi, :kindlegen_path, "./bin/KindleGen_Mac_i386_v2_9/kindlegen"
 
-config :hnmobi, Hnmobi.Scheduler,
-  jobs: [
-    {"* * * * *", fn -> IO.puts "Every minute i'm hustlin -- Scheduler" end},
+config :hnmobi, Hnmobi.Main.Scheduler,
+jobs: [
+  heartbeat: [
+    schedule: "* * * * *",
+    task: {Hnmobi.Main.Scheduler, :heartbeat, []}
   ]
+]
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
