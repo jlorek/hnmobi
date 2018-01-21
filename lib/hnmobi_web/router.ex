@@ -22,6 +22,9 @@ defmodule HnmobiWeb.Router do
     get "/convert/:hnid", PageController, :convert
     get "/mobi/:hnid", PageController, :mobi
     get "/send/:hnid", PageController, :send
+    get "/user/:hash", PageController, :config_user
+    
+    put "/user/update", PageController, :update_user
     post "/top/email", PageController, :create_user
 
     # Debug Routes

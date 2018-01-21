@@ -1,4 +1,4 @@
-defmodule Test do
+defmodule HnmobiWeb.Test do
   defstruct user: nil, link: nil
 end
 
@@ -12,6 +12,8 @@ defmodule HnmobiWeb.PageController do
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Users
   alias Hnmobi.Users.User
+
+  alias HnmobiWeb.Test
 
   def index(conn, _params) do
     changeset = Users.change_user(%User{})
@@ -44,6 +46,7 @@ defmodule HnmobiWeb.PageController do
 
     test = %Test{user: db_user}
     test
+    |> Users.invalidate_old_links
     |> Users.create_login_link
     |> Users.send_login_link
 
@@ -52,7 +55,29 @@ defmodule HnmobiWeb.PageController do
     |> redirect(to: page_path(conn, :index))
   end
 
+  def config_user(conn, %{"hash" => hash}) do
+    case Users.get_user_by_hash(hash) do
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, reason)
+        |> redirect(to: page_path(conn, :index))
+      {:ok, user} -> 
+        changeset = Users.change_user(user)
+        render(conn, "config.html", user: user, changeset: changeset)
+    end
+  end
 
+  def update_user(conn, %{"user" => user}) do
+    hash = user["login_hash"]["hash"]
+    {:ok, db_user} = Users.get_user_by_hash(hash)
+    user = Map.pop(user, "login_hash")
+    {_, user} = user
+    Users.update_user(db_user, user) 
+
+    conn
+    |> put_flash(:info, "Your config has been updated")
+    |> redirect(to: page_path(conn, :index))
+  end
 
   def convert(conn, %{"hnid" => hnid}) do
     article = HackerNews.details(hnid)
