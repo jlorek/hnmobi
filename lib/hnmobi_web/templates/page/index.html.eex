@@ -2,7 +2,7 @@
   <div class="form-group">
     <label for="user[email]">Email</label>
     <div class="input-group">
-      <%= text_input f, :email, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
+      <%= text_input f, :email, required: true, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
     </div>
     <small id="emailHelp" class="form-text text-muted">Create a hn.mobi account with this email adress.</small>
   </div>
