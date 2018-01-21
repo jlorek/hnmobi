@@ -4,9 +4,13 @@ defmodule Hnmobi.Users do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.UUID
+
   alias Hnmobi.Repo
 
   alias Hnmobi.Users.User
+  alias Hnmobi.Users.LoginHash
+
   alias Hnmobi.Main.LoginEmail
   alias Hnmobi.Main.Mailer
 
@@ -63,14 +67,30 @@ defmodule Hnmobi.Users do
     |> Repo.insert()
   end
 
-  def create_login_link(test) do 
-    %{test | link: "https://google.de"}
+  def create_login_link(test) do
+    valid_until = Timex.shift(Timex.now(), hours: 12)
+
+    login_hash =
+      %LoginHash{hash: UUID.generate(), user: test.user, valid_until: valid_until}
+      |> Repo.insert!()
+
+    link = HnmobiWeb.Router.Helpers.page_url(HnmobiWeb.Endpoint, :config_user, login_hash.hash)
+    %{test | link: link}
   end
 
   def send_login_link(test) do
-    Logger.info("TEST")
-    IO.inspect(test)
     LoginEmail.deliver(test) |> Mailer.deliver()
+  end
+
+  def get_user_by_hash(hash) do
+    login_hash = Repo.get_by(LoginHash, hash: hash) |> Repo.preload([:user, user: :login_hash])
+    now = Timex.now
+
+    if is_nil(login_hash) or Timex.after?(now, login_hash.valid_until) do
+      {:error, "Login link not valid or user doesn't exist anymore."}
+    else
+      {:ok, login_hash.user}
+    end
   end
 
   @doc """

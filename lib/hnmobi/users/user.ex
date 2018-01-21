@@ -9,6 +9,7 @@ defmodule Hnmobi.Users.User do
     field :email, :string
     field :kindle, :string
     field :weekly, :boolean, default: true
+    has_one :login_hash, Hnmobi.Users.LoginHash
 
     timestamps()
   end

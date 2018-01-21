@@ -42,7 +42,7 @@ defmodule Hnmobi.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:tesla, "~> 0.10.0"},
-      {:poison, ">= 1.0.0"}, # optional, required by JSON middleware
+      {:poison, "~> 3.1"}, # optional, required by JSON middleware
       {:temp, "~> 0.4"},
       {:swoosh, "~> 0.12.1"},
       {:quantum, ">= 2.2.1"},
