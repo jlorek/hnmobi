@@ -30,8 +30,7 @@ defmodule HnmobiWeb.PageController do
 
   def top(conn, _params) do
     result = HackerNews.top()
-    email = get_session(conn, :email)
-    render(conn, "top.html", items: result, email: email)
+    render(conn, "top.html", items: result)
   end
 
   def create_user(conn, %{"user" => user}) do
