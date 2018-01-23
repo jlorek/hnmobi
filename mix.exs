@@ -47,7 +47,8 @@ defmodule Hnmobi.Mixfile do
       {:swoosh, "~> 0.12.1"},
       {:quantum, ">= 2.2.1"},
       {:timex, "~> 3.0"},
-      {:logger_file_backend, "~> 0.0.10"}
+      {:logger_file_backend, "~> 0.0.10"},
+      {:timber, "~> 2.5"}
     ]
   end
 

@@ -20,7 +20,6 @@ defmodule HnmobiWeb.Endpoint do
   end
 
   plug Plug.RequestId
-  plug Plug.Logger
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -37,6 +36,11 @@ defmodule HnmobiWeb.Endpoint do
     store: :cookie,
     key: "_hnmobi_key",
     signing_salt: "wGdxoK5U"
+
+  # Add Timber plugs for capturing HTTP context and events
+  plug Timber.Integrations.SessionContextPlug
+  plug Timber.Integrations.HTTPContextPlug
+  plug Timber.Integrations.EventPlug
 
   plug HnmobiWeb.Router
 

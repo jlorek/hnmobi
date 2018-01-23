@@ -45,14 +45,6 @@ config :hnmobi, HnmobiWeb.Endpoint,
   server: true,
   root: "."
 
-# Logger
-config :logger,
-  backends: [:console, {LoggerFileBackend, :file_logger}]
-
-config :logger, :file_logger,
-  path: "log/default.log",
-  level: :info
-
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
