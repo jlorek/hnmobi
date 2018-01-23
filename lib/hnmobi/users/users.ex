@@ -47,10 +47,12 @@ defmodule Hnmobi.Users do
 
   def get_user_by_email(email) do
     user = Repo.get_by(User, email: email)
+    user
   end
 
   def get_daily_recipients() do
     Repo.all(from u in User, where: u.daily, select: u.kindle)
+    |> Enum.filter(fn email -> !is_nil(email) && email != "" end)
     # check for valid email
   end
 
