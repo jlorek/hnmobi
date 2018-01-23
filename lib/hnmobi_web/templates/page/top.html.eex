@@ -5,7 +5,6 @@
   <div class="panel-body">
     <%= for item <- @items do %>
       <p>
-        <a href="<%= page_path(@conn, :send, item["id"]) %>">Send</a> |
         <a href="<%= page_path(@conn, :mobi, item["id"]) %>">Load</a> |
         <a href="<%= page_path(@conn, :convert, item["id"]) %>">Show</a> |
         <a href="<%= item["url"] %>"><%= item["title"] %></a>
