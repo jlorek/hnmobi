@@ -22,7 +22,19 @@ defmodule Hnmobi.Main.UserEmail do
   require Logger
   import Swoosh.Email
 
-  def deliver(title, mobi_file, email) do
+  def compose_daily(mobi_file, email) do
+    Logger.info "Composing mail for '#{email}''"
+
+    new()
+    |> to(email)
+    |> from("delivery@hackernews.mobi")
+    |> subject("your daily hackernews.mobi delivery")
+    |> html_body("<h1>Enjoy your read</h1>")
+    |> text_body("Enjoy your read\n")
+    |> attachment(mobi_file)
+  end
+  
+  def compose_single(title, mobi_file, email) do
     Logger.info "Composing mail for '#{email}''"
 
     new()

@@ -158,7 +158,7 @@ defmodule HnmobiWeb.PageController do
     {article, mobi_path} = get_mobi(hnid)
     email = get_session(conn, :email)
 
-    UserEmail.deliver(article["title"], mobi_path, email) |> Mailer.deliver()
+    UserEmail.compose_single(article["title"], mobi_path, email) |> Mailer.deliver()
 
     conn
     |> put_flash(:info, "Check your mail!")

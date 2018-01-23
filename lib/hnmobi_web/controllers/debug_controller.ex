@@ -3,6 +3,8 @@ defmodule HnmobiWeb.DebugController do
   use HnmobiWeb, :controller
 
   alias Hnmobi.Main.Ebook
+  alias Hnmobi.Users
+  alias Hnmobi.Users.User
 
   def index(conn, _params) do
     render conn, "index.html"
@@ -10,12 +12,13 @@ defmodule HnmobiWeb.DebugController do
 
   def show(conn, _params) do
     # value = Timex.now |> Timex.format!("{D}. {Mfull} '{YY}")
-    value = Timex.now |> Timex.to_unix
+    # value = Timex.now |> Timex.to_unix
+    value = Enum.join(Users.get_daily_recipients, ", ")
     render conn, "show_value.html", value: value
   end
 
   def download(conn, _params) do
-    mobi_path = Ebook.generate
+    {:ok, mobi_path} = Ebook.generate
     filename = Timex.now |> Timex.to_unix    
 
     conn

@@ -49,6 +49,15 @@ defmodule Hnmobi.Users do
     user = Repo.get_by(User, email: email)
   end
 
+  def get_daily_recipients() do
+    Repo.all(from u in User, where: u.daily, select: u.kindle)
+    # check for valid email
+  end
+
+  def get_weekly_recipients() do
+    Repo.all(from u in User, where: u.weekly, select: u.kindle)
+  end
+
   @doc """
   Creates a user.
 

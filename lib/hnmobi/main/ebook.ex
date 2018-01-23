@@ -27,7 +27,7 @@ defmodule Hnmobi.Main.Ebook do
     mobi_path = prepare_mobi epub_path
 
     Logger.info "...ebook generation completed!"
-    mobi_path
+    {:ok, mobi_path }
   end
 
   defp prepare_html(meta, debug \\ false)
