@@ -75,7 +75,7 @@ defmodule HnmobiWeb.PageController do
 
     conn
     |> put_flash(:info, "Your config has been updated")
-    |> redirect(to: page_path(conn, :index))
+    |> redirect(to: page_path(conn, :config_user, hash))
   end
 
   def convert(conn, %{"hnid" => hnid}) do
