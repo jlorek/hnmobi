@@ -73,8 +73,10 @@ And some PSQL commands for quick lookup
 ```
 
 ## pandoc
+dont install from repository since it's outdated
 ```
-$ sudo apt-get install pandoc
+$ wget https://github.com/jgm/pandoc/releases/download/2.1.1/pandoc-2.1.1-1-amd64.deb
+$ sudo dpkg -i pandoc-2.1.1-1-amd64.deb
 ```
 
 ## kindlegen

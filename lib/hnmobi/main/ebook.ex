@@ -136,7 +136,7 @@ defmodule Hnmobi.Main.Ebook do
     
     input_files = Enum.join(htmls, " ");
     pandoc_path = Application.fetch_env!(:hnmobi, :pandoc_path)
-    pandoc_arguments = " -s -f html -t epub -o #{epub_path} #{input_files}"
+    pandoc_arguments = " -s -f html -t epub3 -o #{epub_path} #{input_files}"
     shell_arguments = pandoc_path <> pandoc_arguments
     Logger.info "Executing shell command '#{shell_arguments}'"
     pandoc_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]
