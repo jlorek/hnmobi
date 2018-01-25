@@ -2,9 +2,11 @@ defmodule HnmobiWeb.DebugController do
   require Logger
   use HnmobiWeb, :controller
 
+  alias Hnmobi.Main.UserEmail
+  alias Hnmobi.Main.Mailer
   alias Hnmobi.Main.Ebook
+
   alias Hnmobi.Users
-  alias Hnmobi.Users.User
 
   def index(conn, _params) do
     render conn, "index.html"
@@ -25,5 +27,13 @@ defmodule HnmobiWeb.DebugController do
     |> put_resp_content_type("application/octet-stream", nil)
     |> put_resp_header("content-disposition", ~s[attachment; filename="#{filename}.mobi"])
     |> send_file(200, mobi_path)
+  end
+
+  def send_email(conn, %{"email" => email}) do
+    UserEmail.compose_test(email) |> Mailer.deliver()
+
+    conn
+    |> put_flash(:info, "Mail sent to " <> email)
+    |> redirect(to: "/debug")
   end
 end
