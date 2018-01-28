@@ -37,9 +37,14 @@ defmodule Hnmobi.Main.HackerNews do
   def top do
     response = get("topstories.json")
     json = response.body
-    #response.status
 
-    items = json |> Enum.drop(0) |> Enum.take(5) |> Enum.map(&details/1)
+    items = json
+      |> Enum.take(10)
+      |> Enum.map(&details/1)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.filter(&has_required_keys?/1)
+      |> Enum.filter(&is_url_valid?/1)
+
     Logger.info "Items found: #{length(items)}"
     items
   end
@@ -50,5 +55,22 @@ defmodule Hnmobi.Main.HackerNews do
         200 -> response.body
         _ -> nil
     end
+  end
+
+  defp has_required_keys?(%{"id" => _, "url" => _, "title" => _}), do: true
+
+  defp has_required_keys?(_), do: false
+
+  defp is_url_valid?(%{"url" => url}) do
+    ok = cond do
+      String.contains?(url, "twitter.com") -> false
+      String.contains?(url, "github.com") -> false
+      String.contains?(url, "youtube.com") -> false
+      String.ends_with?(url, ".pdf") -> false
+      true -> true
+    end
+
+    unless ok do Logger.info "Article '#{url}' was rejected by URL filter" end
+    ok
   end
 end
