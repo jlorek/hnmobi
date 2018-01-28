@@ -53,7 +53,6 @@ defmodule Hnmobi.Main.Ebook do
               # https://www.w3schools.com/cssref/pr_print_pagebb.asp
               IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
               IO.write html_handle, "<a name=\"#{id}\"></a>"
-              IO.write html_handle, "<img src=\"http://www.mustacheridesla.com/mustache.png\" />"
               IO.write html_handle, content
               File.close html_handle
               %{ meta: meta, html_path: html_path }
