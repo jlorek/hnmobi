@@ -80,12 +80,12 @@ defmodule HnmobiWeb.PageController do
 
   def convert(conn, %{"hnid" => hnid}) do
     article = HackerNews.details(hnid)
-    content = Mercury.reader(article["url"])
+    content = Mercury.get_content(article["url"])
     render(conn, "convert.html", content: content, title: article["title"])
   end
 
   defp prepare_html(path, %{"url" => url, "title" => title}) do
-    content = Mercury.reader(url)
+    content = Mercury.get_content(url)
 
     html_path = Path.join(path, "article.html")
     Logger.info("html_path = #{html_path}")

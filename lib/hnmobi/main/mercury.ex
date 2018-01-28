@@ -25,16 +25,36 @@ defmodule Hnmobi.Main.Mercury do
   #   "next_page_url": null
   # }
 
-  def reader (url) do
+  def get_content (url) do
     Logger.info "Mercury is processing url '#{url}'"
     response = get("parser?url=#{url}")
     if response.status == 200 do
       json = response.body
-      json["content"]
+      extract_content(json)
     else
-      Logger.warn "Could not fetch '#{url}' with mercury"
+      Logger.warn "Could not fetch '#{url}' with Mercury"
       nil
     end
   end
 
+  defp extract_content(article) do
+    cond do
+      is_content_empty?(article) -> nil
+      has_too_few_words?(article) -> nil
+      true -> article["content"]
+    end
+  end
+
+  defp is_content_empty?(%{"content" => content}) do
+    case content do
+      nil -> true
+      "" -> true
+      "<div></div>" -> true # returned by http://maps.arcgis.com/apps/StorytellingSwipe/index.html?appid=e5160a8d1d3649f09a756c317bd0b56b
+      _ -> false
+    end
+  end
+
+  defp has_too_few_words?(%{"word_count" => word_count}) do
+    word_count < 50
+  end
 end

@@ -2,43 +2,41 @@ defmodule Hnmobi.Main.Ebook do
   # useful documentation
   # https://kindlegen.s3.amazonaws.com/AmazonKindlePublishingGuidelines.pdf
   # https://pandoc.org/MANUAL.html
-  
+
   require Logger
 
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Main.HackerNews
+  alias Hnmobi.Main.Kindlegen
+  alias Hnmobi.Main.Pandoc
   
   def generate do
     Logger.info "Starting ebook generation..."
 
-    {:ok, temp_path} = Temp.mkdir
+    {:ok, working_directory} = Temp.mkdir
 
-    # TODO: handle hacker news api timeout
     articles = HackerNews.top
     # |> Enum.map(&prepare_html/1)
-    |> Enum.map(fn meta -> prepare_html(meta, true) end)
-    # pre filter like .pdf
-    # and create link list?
-    # open graph tags parsen
-    |> Enum.filter(fn result -> not is_nil result end)
+    |> Enum.map(fn hn_meta -> prepare_html(hn_meta, true) end)
+    |> Enum.reject(&is_nil/1)
     
     toc_path = prepare_toc Enum.map(articles, fn article -> article.meta end)
-
     html_paths = Enum.map(articles, fn result -> result.html_path end)
     html_paths = [prepare_header() |[toc_path | html_paths]] ++ [prepare_footer()]
     
-    epub_path = prepare_single_epub temp_path, html_paths
-    mobi_path = prepare_mobi epub_path
-
-    Logger.info "...ebook generation completed!"
-    {:ok, mobi_path }
+    case Pandoc.convert(working_directory, html_paths) do
+      {:ok, epub_path} ->
+        case Kindlegen.convert(epub_path) do
+          {:ok, mobi_path} -> {:ok, mobi_path}
+          _ -> {:error, ".mobi conversion failed"}
+        end
+        _ -> {:error, ".epub conversion failed"}
+    end
   end
 
-  defp prepare_html(meta, debug \\ false)
-
   defp prepare_html(%{"id" => id, "url" => url, "title" => title} = meta, debug) do
-    content = Mercury.reader(url)
-    unless content_empty(content) do
+    content = Mercury.get_content(url)
+    unless is_nil(content) do
       case Temp.path %{suffix: ".html"} do
         {:ok, html_path } ->
           Logger.info "html_path = #{html_path}"
@@ -65,11 +63,6 @@ defmodule Hnmobi.Main.Ebook do
     end
   end
 
-  defp prepare_html(_article, _debug) do
-    Logger.warn "Article has missing 'id', 'url' or 'title'"
-    nil
-  end
-
   defp add_article_metadata(html_handle, meta)do
     IO.write html_handle, "<h1 style=\"page-break-before:always\">#{meta["title"]}</h1>"
     IO.write html_handle, "<p>Source: <a href=\"#{meta["url"]}\">#{meta["url"]}</a></p>"
@@ -78,17 +71,6 @@ defmodule Hnmobi.Main.Ebook do
     IO.write html_handle, "<p>Score: #{meta["score"]}</p>"
     IO.write html_handle, "<p>Time: #{meta["time"]}</p>"
     IO.write html_handle, "<p>Type: #{meta["type"]}</p>"
-  end
-
-  defp content_empty(content) do
-    # TOD: use article.word_count
-    case content do
-      "" -> true
-      nil -> true
-      # returned by http://maps.arcgis.com/apps/StorytellingSwipe/index.html?appid=e5160a8d1d3649f09a756c317bd0b56b
-      "<div></div>" -> true
-      _ -> false
-    end
   end
 
   defp prepare_header() do
@@ -135,81 +117,4 @@ defmodule Hnmobi.Main.Ebook do
     File.close html_handle
     html_path
   end
-
-  defp prepare_single_epub(temp_path, htmls) do
-    epub_path = Path.join(temp_path, "pandoc.epub")
-    Logger.info "epub_path = #{epub_path}"
-    cover_path = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
-    Logger.info "cover_path = #{cover_path}"
-    
-    input_files = Enum.join(htmls, " ");
-    pandoc_path = Application.fetch_env!(:hnmobi, :pandoc_path)
-    pandoc_arguments = " -s -f html -t epub --epub-cover-image=#{cover_path} -o #{epub_path} #{input_files}"
-    shell_arguments = pandoc_path <> pandoc_arguments
-    Logger.info "Executing shell command '#{shell_arguments}'"
-    pandoc_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]
-    pandoc_output = elem(pandoc_process, 0)
-    Logger.info pandoc_output
-
-    if String.contains?(pandoc_output, "WARNING") do
-        Logger.warn "Pandoc was not pleased but did the job!"
-    end
-
-    epub_path
-  end
-
-  defp prepare_epub(html_path) do
-    epub_path = Temp.path! %{suffix: ".epub"}
-    Logger.info "epub_path = #{epub_path}"
-    cover_path = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
-    Logger.info "cover_path = #{cover_path}"
-    unless (File.exists?(cover_path)) do
-      Logger.warn "Cover image should be located at '#{cover_path}' but could not be found"
-    end
-
-    # process_padoc = System.cmd "pandoc", ["-s", "-f html", "-t epub", "-o #{epub_path}", html_path]
-    pandoc_path = Application.fetch_env!(:hnmobi, :pandoc_path)
-    pandoc_arguments = " -s -f html -t epub --epub-cover-image=#{cover_path} -o #{epub_path} #{html_path}"
-    shell_arguments = pandoc_path <> pandoc_arguments
-    Logger.info "Executing shell command '#{shell_arguments}'"
-    pandoc_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]
-    pandoc_output = elem(pandoc_process, 0)
-    Logger.info "- pandoc output start -"
-    Logger.info pandoc_output
-    Logger.info "- pandoc output start -"
-
-    if String.contains?(pandoc_output, "WARNING") do
-        Logger.warn "Pandoc was not pleased but did the job!"
-    end
-
-    epub_path
-  end
-
-  defp prepare_mobi(epub_path) do
-    mobi_path = Path.join(Path.dirname(epub_path), "kindle.mobi")
-    Logger.info "mobi_path = #{mobi_path}"
-
-    # https://groups.google.com/forum/#!topic/elixir-lang-talk/ZrqKW1NhDCw 
-    kindlegen_path = Application.fetch_env!(:hnmobi, :kindlegen_path)
-    kindlegen_arguments = " #{epub_path} -o #{Path.basename(mobi_path)}"
-    shell_arguments = kindlegen_path <> kindlegen_arguments
-    Logger.info "Executing shell command '#{shell_arguments}'"
-
-    kindlegen_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]
-    kindleget_output = elem(kindlegen_process, 0)
-    Logger.info "- kinglegen output start -"
-    Logger.info kindleget_output
-    Logger.info "- kinglegen output end -"
-
-    if String.contains?(kindleget_output, "Warning") do
-      Logger.warn "Kindlegen had some warnings you should look into"
-  end
-
-    if String.contains?(kindleget_output, "Error") do
-        Logger.error "Kindlegen was not happy at all..."
-    end
-
-    mobi_path
-  end
-
 end
