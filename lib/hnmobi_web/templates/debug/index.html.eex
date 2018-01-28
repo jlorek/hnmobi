@@ -1,3 +1,4 @@
 <h1 class="cover-heading">Debug - good luck!</h1>
+<p><a href="<%= debug_path(@conn, :show) %>">Show</a></p>
 <p><a href="<%= debug_path(@conn, :download) %>">Download</a></p>
 <p><a href="<%= debug_path(@conn, :send_email, "lorek.jens@gmail.com") %>">Send eMail</a></p>

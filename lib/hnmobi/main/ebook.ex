@@ -1,4 +1,8 @@
 defmodule Hnmobi.Main.Ebook do
+  # useful documentation
+  # https://kindlegen.s3.amazonaws.com/AmazonKindlePublishingGuidelines.pdf
+  # https://pandoc.org/MANUAL.html
+  
   require Logger
 
   alias Hnmobi.Main.Mercury
@@ -77,7 +81,9 @@ defmodule Hnmobi.Main.Ebook do
   end
 
   defp content_empty(content) do
+    # TOD: use article.word_count
     case content do
+      "" -> true
       nil -> true
       # returned by http://maps.arcgis.com/apps/StorytellingSwipe/index.html?appid=e5160a8d1d3649f09a756c317bd0b56b
       "<div></div>" -> true
@@ -133,10 +139,12 @@ defmodule Hnmobi.Main.Ebook do
   defp prepare_single_epub(temp_path, htmls) do
     epub_path = Path.join(temp_path, "pandoc.epub")
     Logger.info "epub_path = #{epub_path}"
+    cover_path = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
+    Logger.info "cover_path = #{cover_path}"
     
     input_files = Enum.join(htmls, " ");
     pandoc_path = Application.fetch_env!(:hnmobi, :pandoc_path)
-    pandoc_arguments = " -s -f html -t epub3 -o #{epub_path} #{input_files}"
+    pandoc_arguments = " -s -f html -t epub --epub-cover-image=#{cover_path} -o #{epub_path} #{input_files}"
     shell_arguments = pandoc_path <> pandoc_arguments
     Logger.info "Executing shell command '#{shell_arguments}'"
     pandoc_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]
@@ -153,10 +161,15 @@ defmodule Hnmobi.Main.Ebook do
   defp prepare_epub(html_path) do
     epub_path = Temp.path! %{suffix: ".epub"}
     Logger.info "epub_path = #{epub_path}"
-    
+    cover_path = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
+    Logger.info "cover_path = #{cover_path}"
+    unless (File.exists?(cover_path)) do
+      Logger.warn "Cover image should be located at '#{cover_path}' but could not be found"
+    end
+
     # process_padoc = System.cmd "pandoc", ["-s", "-f html", "-t epub", "-o #{epub_path}", html_path]
     pandoc_path = Application.fetch_env!(:hnmobi, :pandoc_path)
-    pandoc_arguments = " -s -f html -t epub -o #{epub_path} #{html_path}"
+    pandoc_arguments = " -s -f html -t epub --epub-cover-image=#{cover_path} -o #{epub_path} #{html_path}"
     shell_arguments = pandoc_path <> pandoc_arguments
     Logger.info "Executing shell command '#{shell_arguments}'"
     pandoc_process = System.cmd System.get_env("SHELL"), ["-c", shell_arguments]

@@ -15,7 +15,9 @@ defmodule HnmobiWeb.DebugController do
   def show(conn, _params) do
     # value = Timex.now |> Timex.format!("{D}. {Mfull} '{YY}")
     # value = Timex.now |> Timex.to_unix
-    value = Enum.join(Users.get_daily_recipients, ", ")
+    # value = Enum.join(Users.get_daily_recipients, ", ")
+    # value = System.cwd!()
+    value = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
     render conn, "show_value.html", value: value
   end
 
