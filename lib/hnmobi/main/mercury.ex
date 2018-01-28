@@ -54,6 +54,8 @@ defmodule Hnmobi.Main.Mercury do
     end
   end
 
+  defp is_content_empty?(_), do: true
+
   defp has_too_few_words?(%{"word_count" => word_count}) do
     word_count < 50
   end

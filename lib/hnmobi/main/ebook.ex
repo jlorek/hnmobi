@@ -10,20 +10,27 @@ defmodule Hnmobi.Main.Ebook do
   alias Hnmobi.Main.Kindlegen
   alias Hnmobi.Main.Pandoc
   
-  def generate do
+  def generate_single(hnid) do
+    article = HackerNews.details(hnid)
+    generate([article])
+  end
+
+  def generate_top() do
+    HackerNews.top |> generate()
+  end
+
+  defp generate(hn_articles) do
     Logger.info "Starting ebook generation..."
-
-    {:ok, working_directory} = Temp.mkdir
-
-    articles = HackerNews.top
+    
     # |> Enum.map(&prepare_html/1)
-    |> Enum.map(fn hn_meta -> prepare_html(hn_meta, true) end)
+    articles = Enum.map(hn_articles, fn hn_meta -> prepare_html(hn_meta, true) end)
     |> Enum.reject(&is_nil/1)
     
     toc_path = prepare_toc Enum.map(articles, fn article -> article.meta end)
     html_paths = Enum.map(articles, fn result -> result.html_path end)
     html_paths = [prepare_header() |[toc_path | html_paths]] ++ [prepare_footer()]
     
+    {:ok, working_directory} = Temp.mkdir
     case Pandoc.convert(working_directory, html_paths) do
       {:ok, epub_path} ->
         case Kindlegen.convert(epub_path) do

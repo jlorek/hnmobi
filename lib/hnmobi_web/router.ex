@@ -19,7 +19,7 @@ defmodule HnmobiWeb.Router do
     # Main Routes
     get "/", PageController, :index
     get "/top", PageController, :top
-    get "/convert/:hnid", PageController, :convert
+    get "/show/:hnid", PageController, :show
     get "/mobi/:hnid", PageController, :mobi
     get "/user/:hash", PageController, :config_user
     

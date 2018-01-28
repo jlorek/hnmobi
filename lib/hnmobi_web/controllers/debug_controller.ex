@@ -22,12 +22,12 @@ defmodule HnmobiWeb.DebugController do
   end
 
   def download(conn, _params) do
-    {:ok, mobi_path} = Ebook.generate
-    filename = Timex.now |> Timex.to_unix    
+    {:ok, mobi_path} = Ebook.generate_top()
+    timestamp = Timex.now |> Timex.to_unix    
 
     conn
     |> put_resp_content_type("application/octet-stream", nil)
-    |> put_resp_header("content-disposition", ~s[attachment; filename="#{filename}.mobi"])
+    |> put_resp_header("content-disposition", ~s[attachment; filename="hnmobi-#{timestamp}.mobi"])
     |> send_file(200, mobi_path)
   end
 
