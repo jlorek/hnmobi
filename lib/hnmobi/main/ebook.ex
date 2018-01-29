@@ -9,6 +9,7 @@ defmodule Hnmobi.Main.Ebook do
   alias Hnmobi.Main.HackerNews
   alias Hnmobi.Main.Kindlegen
   alias Hnmobi.Main.Pandoc
+  alias Hnmobi.Main.Kindleunpack
   
   def generate_single(hnid) do
     article = HackerNews.details(hnid)
@@ -34,7 +35,11 @@ defmodule Hnmobi.Main.Ebook do
     case Pandoc.convert(working_directory, html_paths) do
       {:ok, epub_path} ->
         case Kindlegen.convert(epub_path) do
-          {:ok, mobi_path} -> {:ok, mobi_path}
+          {:ok, mobi_path} -> 
+            case Kindleunpack.extract_kf7(mobi_path) do
+              {:ok, kf7_path} -> {:ok, kf7_path}
+              _ -> {:error, ".azw (KF7) extraction failed"}
+            end
           _ -> {:error, ".mobi conversion failed"}
         end
         _ -> {:error, ".epub conversion failed"}

@@ -39,7 +39,7 @@ defmodule Hnmobi.Main.HackerNews do
     json = response.body
 
     items = json
-      |> Enum.take(10)
+      |> Enum.take(1)
       |> Enum.map(&details/1)
       |> Enum.reject(&is_nil/1)
       |> Enum.filter(&has_required_keys?/1)
