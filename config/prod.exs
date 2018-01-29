@@ -6,10 +6,6 @@ config :hnmobi, :kindlegen_path, "kindlegen"
 # http://www.nncron.ru/help/EN/working/cron-format.htm
 config :hnmobi, Hnmobi.Main.Scheduler,
 jobs: [
-  heartbeat: [
-    schedule: "* * * * *",
-    task: {Hnmobi.Main.Scheduler, :heartbeat, []}
-  ],
   daily: [
     # running on midnight
     schedule: "0 0 * * *",
