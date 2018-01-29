@@ -6,8 +6,6 @@ defmodule HnmobiWeb.DebugController do
   alias Hnmobi.Main.Mailer
   alias Hnmobi.Main.Ebook
 
-  alias Hnmobi.Users
-
   def index(conn, _params) do
     render conn, "index.html"
   end
@@ -36,6 +34,15 @@ defmodule HnmobiWeb.DebugController do
 
     conn
     |> put_flash(:info, "Mail sent to " <> email)
+    |> redirect(to: "/debug")
+  end
+
+  def send_daily(conn, %{"email" => email}) do
+    {:ok, mobi_path} = Ebook.generate_top()
+    UserEmail.compose_daily(mobi_path, email) |> Mailer.deliver()
+
+    conn
+    |> put_flash(:info, "Delivery sent to " <> email)
     |> redirect(to: "/debug")
   end
 end
