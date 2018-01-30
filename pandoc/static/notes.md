@@ -8,6 +8,7 @@ Source: http://www.ebookcoversize.com
 ## Problem
 Source: https://kdp.amazon.com/community/thread.jspa?threadID=288939
 > It's because, when you email a file to your Kindle, instead of directly loading it, it's being transferred as part of the Personal Documents Service. You will NOT get a cover on your MOBI, on a PPW, if you email it to yourself.
+
 That's somehow vague and not true. A combo-mobi (which is produced by kindlegen >= 2.4) contains a oldschool mobi file (which is an .azw with .mobi ending in MobiDoc/KF7 format) and a azw3 file (which is in KF8 format). When sent to Kindle PDS it gets stored and the file matching your device (mostly the azw3) is served.
 But sadly the azw3 file does not display its cover (it's present, it just has some display issues).
 These "no cover shows up" issue may has something to do with a missing "personal documents tag", which causes the kindle to search for a cover matching die book identifier in the amazon database (which fails of course, but the fallback to the built-in cover is broken).
