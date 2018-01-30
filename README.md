@@ -39,7 +39,7 @@ $ nvm install --lts
 ```
 
 ## python 2.7
-because node-gyp needs it, which is required by brunch-sass :/
+required for KindleUnpack - https://github.com/kevinhendricks/KindleUnpack
 ```
 $ sudo apt install python2.7 python-pip
 ```
