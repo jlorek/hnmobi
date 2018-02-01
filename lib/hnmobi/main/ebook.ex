@@ -7,6 +7,7 @@ defmodule Hnmobi.Main.Ebook do
 
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Main.HackerNews
+  alias Hnmobi.Main.Github
   alias Hnmobi.Main.Kindlegen
   alias Hnmobi.Main.Pandoc
   alias Hnmobi.Main.Kindleunpack
@@ -20,12 +21,38 @@ defmodule Hnmobi.Main.Ebook do
     HackerNews.top |> generate()
   end
 
+  def generate_multiple(articles) do
+    generate(articles)
+  end
+
+  def prepare_github(%{"url" => url} = meta) do
+    github_regex = ~r/http[s]*:\/\/[\w\w\w\.]*github.com\/(?<user>.+)\/(?<repo>.+)\/*/
+    %{"user" => user, "repo" => repo} = Regex.named_captures(github_regex, url)
+    html_path = Github.get_readme(user, repo)
+    |> Pandoc.convert_from_markdown
+
+    %{meta: meta, html_path: html_path}
+  end
+  
+  def filter_github(hn_articles) do
+    Enum.filter(hn_articles, fn(article) -> String.starts_with?(article["url"], "https://github.com") end)
+  end
+
   defp generate(hn_articles) do
     Logger.info "Starting ebook generation..."
-    
+
+    # filter github links
+    Logger.info "Filtering for github links"
+    github_links = filter_github(hn_articles)
+    length = length(github_links)
+    Logger.info "Found #{length} links"
+    github_articles = Enum.map(github_links, fn(gh_meta) -> prepare_github(gh_meta) end)
+
     # |> Enum.map(&prepare_html/1)
     articles = Enum.map(hn_articles, fn hn_meta -> prepare_html(hn_meta, true) end)
     |> Enum.reject(&is_nil/1)
+
+    articles = github_articles ++ articles
     
     toc_path = prepare_toc Enum.map(articles, fn article -> article.meta end)
     html_paths = Enum.map(articles, fn result -> result.html_path end)
