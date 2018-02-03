@@ -20,11 +20,18 @@ defmodule HnmobiWeb.PageController do
   end
 
   def create_user(conn, %{"user" => user}) do
-    db_user = Users.get_user_by_email(user["email"])
+    email = user["email"]
+    if String.contains?(email, "@kindle.com") do 
+      conn
+      |> put_flash(:error, "Please don't use your kindle email address for login/registration!")
+      |> redirect(to: page_path(conn, :index))
+    end
+
+    db_user = Users.get_user_by_email(email)
     db_user = case is_nil(db_user) do
       true ->
         Users.create_user(user)
-        Users.get_user_by_email(user["email"])
+        Users.get_user_by_email(email)
       false ->
         db_user
     end
