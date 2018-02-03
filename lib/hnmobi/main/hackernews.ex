@@ -35,6 +35,10 @@ defmodule Hnmobi.Main.HackerNews do
 # }
 
   def top do
+    Hnmobi.Main.Algolia.top()
+  end
+
+  def top_latest do
     response = get("topstories.json")
     json = response.body
 
