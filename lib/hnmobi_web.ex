@@ -21,6 +21,7 @@ defmodule HnmobiWeb do
     quote do
       use Phoenix.Controller, namespace: HnmobiWeb
       import Plug.Conn
+      use Turbolinks
       import HnmobiWeb.Router.Helpers
       import HnmobiWeb.Gettext
     end

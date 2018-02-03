@@ -9,4 +9,8 @@
   <span class="input-group-btn">
     <%= submit "Create/Login", class: "btn btn-primary" %>
   </span>
-  <% end %>
+<% end %>
+
+  <%# <div data-controller="test">
+    <p data-target="test.bums">You can never see me!</p>
+  </div> %>

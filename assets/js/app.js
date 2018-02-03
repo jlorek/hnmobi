@@ -13,6 +13,16 @@
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
 
+import Turbolinks from 'turbolinks'
+Turbolinks.start()
+
+import { Application } from "stimulus"
+
+import TestController from "./controllers/test_controller"
+
+const application = Application.start()
+application.register("test", TestController)
+
 // Import local files
 //
 // Local files can be imported directly using relative
