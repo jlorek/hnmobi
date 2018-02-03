@@ -3,7 +3,6 @@ defmodule Hnmobi.Main.Scheduler do
   require Logger
   alias Hnmobi.Main.Ebook
   alias Hnmobi.Users
-  alias Hnmobi.Users.User
   alias Hnmobi.Main.Mailer
   alias Hnmobi.Main.UserEmail
 

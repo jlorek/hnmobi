@@ -7,8 +7,6 @@ defmodule HnmobiWeb.PageController do
   require Logger
 
   alias Hnmobi.Main.Ebook
-  alias Hnmobi.Main.UserEmail
-  alias Hnmobi.Main.Mailer
   alias Hnmobi.Main.HackerNews
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Users
