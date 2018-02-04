@@ -14,6 +14,8 @@ defmodule HnmobiWeb.PageController do
 
   alias HnmobiWeb.Test
 
+  @kindle_adress "@kindle.com"
+
   def index(conn, _params) do
     changeset = Users.change_user(%User{})
     render(conn, "index.html", changeset: changeset)
@@ -21,26 +23,31 @@ defmodule HnmobiWeb.PageController do
 
   def create_user(conn, %{"user" => user}) do
     email = user["email"]
-    if String.contains?(email, "@kindle.com") do 
+
+    if email =~ @kindle_adress do
       conn
       |> put_flash(:error, "Please don't use your kindle email address for login/registration!")
       |> redirect(to: page_path(conn, :index))
     end
 
     db_user = Users.get_user_by_email(email)
-    db_user = case is_nil(db_user) do
-      true ->
-        Users.create_user(user)
-        Users.get_user_by_email(email)
-      false ->
-        db_user
-    end
+
+    db_user =
+      case is_nil(db_user) do
+        true ->
+          Users.create_user(user)
+          Users.get_user_by_email(email)
+
+        false ->
+          db_user
+      end
 
     test = %Test{user: db_user}
+
     test
-    |> Users.invalidate_old_links
-    |> Users.create_login_link
-    |> Users.send_login_link
+    |> Users.invalidate_old_links()
+    |> Users.create_login_link()
+    |> Users.send_login_link()
 
     conn
     |> put_flash(:info, "Check your emails!")
@@ -53,7 +60,8 @@ defmodule HnmobiWeb.PageController do
         conn
         |> put_flash(:error, reason)
         |> redirect(to: page_path(conn, :index))
-      {:ok, user} -> 
+
+      {:ok, user} ->
         changeset = Users.change_user(user)
         render(conn, "config.html", user: user, changeset: changeset)
     end
@@ -64,7 +72,7 @@ defmodule HnmobiWeb.PageController do
     {:ok, db_user} = Users.get_user_by_hash(hash)
     user = Map.pop(user, "login_hash")
     {_, user} = user
-    Users.update_user(db_user, user) 
+    Users.update_user(db_user, user)
 
     conn
     |> put_flash(:info, "Your config has been updated")
