@@ -1,4 +1,2 @@
-<div class="jumbotron">
-    <h2><%= @title %></h2>
-</div>
+<h1><%= @title %></h1>
 <p><%= raw @content %></p>

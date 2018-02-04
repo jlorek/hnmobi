@@ -84,9 +84,14 @@ defmodule HnmobiWeb.PageController do
     render(conn, "top.html", items: result)
   end
 
-  def show(conn, %{"hnid" => hnid}) do
+  def show(conn, %{"hnid" => hnid, "scraper" => scraper}) do
     article = HackerNews.details(hnid)
-    content = Mercury.get_content(article["url"])
+
+    content = case scraper do 
+      "mercury" -> Mercury.get_content(article["url"])
+      "readability" -> Readability.summarize(article["url"]).article_html
+    end
+
     render(conn, "convert.html", content: content, title: article["title"])
   end
 
