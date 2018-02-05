@@ -6,8 +6,8 @@ defmodule Hnmobi.UsersTest do
   describe "users" do
     alias Hnmobi.Users.User
 
-    @valid_attrs %{daily: true, email: "some email", kindle: "some kindle", weekly: true}
-    @update_attrs %{daily: false, email: "some updated email", kindle: "some updated kindle", weekly: false}
+    @valid_attrs %{daily: true, email: "test@example.com", kindle: "test@kindle.com", weekly: true}
+    @update_attrs %{daily: false, email: "updated@example.com", kindle: "updated@kindle.com", weekly: false}
     @invalid_attrs %{daily: nil, email: nil, kindle: nil, weekly: nil}
 
     def user_fixture(attrs \\ %{}) do
@@ -32,8 +32,8 @@ defmodule Hnmobi.UsersTest do
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Users.create_user(@valid_attrs)
       assert user.daily == true
-      assert user.email == "some email"
-      assert user.kindle == "some kindle"
+      assert user.email == "test@example.com"
+      assert user.kindle == "test@kindle.com"
       assert user.weekly == true
     end
 
@@ -46,8 +46,8 @@ defmodule Hnmobi.UsersTest do
       assert {:ok, user} = Users.update_user(user, @update_attrs)
       assert %User{} = user
       assert user.daily == false
-      assert user.email == "some updated email"
-      assert user.kindle == "some updated kindle"
+      assert user.email == "updated@example.com"
+      assert user.kindle == "updated@kindle.com"
       assert user.weekly == false
     end
 
