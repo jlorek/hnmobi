@@ -27,23 +27,17 @@ defmodule Hnmobi.Main.Mercury do
 
   def sanatize() do
     html = get_content("https://torrentfreak.com/cloudflare-terminates-service-to-sci-hub-domain-names-180205/")
-    sanatize(html)
+    sanitize(html)
   end
 
-  def sanatize(html) do
+  def sanitize(html) do
     Floki.parse(html) |> Floki.map(fn({name, attrs}) ->
       attrs = case name do
         "img" ->
           srcset_found = Enum.any?(attrs, fn (attr) -> elem(attr, 0) == "srcset" end)
           if (srcset_found) do
             Logger.warn "Found one of there srcset fancy bitches!"
-            Enum.map(attrs, fn(attr) ->
-              attribute_name = elem(attr, 0)
-              case attribute_name do
-                "src" -> {"src", String.splitter(elem(attr, 1), "%20") |> Enum.take(1) }
-                _ -> attr
-              end
-            end)
+            fix_img_with_srcset(attrs)
           else
             attrs
           end
@@ -51,6 +45,16 @@ defmodule Hnmobi.Main.Mercury do
         end
       {name, attrs}
     end) |> Floki.raw_html()
+  end
+
+  defp fix_img_with_srcset(attrs) do
+    Enum.map(attrs, fn(attr) ->
+      attribute_name = elem(attr, 0)
+      case attribute_name do
+        "src" -> {"src", String.splitter(elem(attr, 1), "%20") |> Enum.take(1) }
+        _ -> attr
+      end
+    end)
   end
 
   def get_content (url) do
@@ -69,7 +73,7 @@ defmodule Hnmobi.Main.Mercury do
     cond do
       is_content_empty?(article) -> nil
       has_too_few_words?(article) -> nil
-      true -> sanatize(article["content"])
+      true -> sanitize(article["content"])
     end
   end
 
