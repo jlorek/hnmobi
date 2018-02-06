@@ -17,3 +17,6 @@ config :hnmobi, Hnmobi.Repo,
   database: "hnmobi_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :hnmobi, :pandoc_path, "pandoc"
+config :hnmobi, :kindlegen_path, "./bin/KindleGen_Mac_i386_v2_9/kindlegen"

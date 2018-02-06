@@ -26,7 +26,7 @@ defmodule Hnmobi.Main.Ebook do
   end
 
   def prepare_github(%{"url" => url} = meta) do
-    github_regex = ~r/http[s]*:\/\/[\w\w\w\.]*github.com\/(?<user>.+)\/(?<repo>.+)\/*/
+    github_regex = ~r/http[s]*:\/\/[www\.]*github.com\/(?<user>.+)\/(?<repo>.+)\/*/
     %{"user" => user, "repo" => repo} = Regex.named_captures(github_regex, url)
     html_path = Github.get_readme(user, repo)
     |> Pandoc.convert_from_markdown
@@ -35,7 +35,7 @@ defmodule Hnmobi.Main.Ebook do
   end
   
   def filter_github(hn_articles) do
-    Enum.filter(hn_articles, fn(article) -> String.starts_with?(article["url"], "https://github.com") end)
+    Enum.filter(hn_articles, fn %{"url" => url} -> url =~ ~r/http[s]*:\/\/[www\.]*github.com/ end)
   end
 
   defp generate(hn_articles) do
