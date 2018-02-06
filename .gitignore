@@ -68,3 +68,6 @@ bin/KindleUnpack/lib/mobi_utils\.pyc
 bin/KindleUnpack/lib/unipath\.pyc
 
 bin/KindleUnpack/lib/unpack_structure\.pyc
+
+# VS Code
+.vscode/settings.json

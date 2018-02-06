@@ -9,6 +9,7 @@ defmodule HnmobiWeb.PageController do
   alias Hnmobi.Main.Ebook
   alias Hnmobi.Main.HackerNews
   alias Hnmobi.Main.Mercury
+  alias Hnmobi.Main.Sanitizer
   alias Hnmobi.Users
   alias Hnmobi.Users.User
 
@@ -91,6 +92,8 @@ defmodule HnmobiWeb.PageController do
       "mercury" -> Mercury.get_content(article["url"])
       "readability" -> Readability.summarize(article["url"]).article_html
     end
+
+    content = Sanitizer.sanitize(content)
 
     render(conn, "convert.html", content: content, title: article["title"])
   end

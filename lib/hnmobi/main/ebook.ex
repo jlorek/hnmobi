@@ -11,6 +11,7 @@ defmodule Hnmobi.Main.Ebook do
   alias Hnmobi.Main.Kindlegen
   alias Hnmobi.Main.Pandoc
   alias Hnmobi.Main.Kindleunpack
+  alias Hnmobi.Main.Sanitizer
   
   def generate_single(hnid) do
     article = HackerNews.details(hnid)
@@ -74,7 +75,7 @@ defmodule Hnmobi.Main.Ebook do
   end
 
   defp prepare_html(%{"id" => id, "url" => url, "title" => title} = meta, debug) do
-    content = Mercury.get_content(url)
+    content = Mercury.get_content(url) |> Sanitizer.sanitize()
     unless is_nil(content) do
       case Temp.path %{suffix: ".html"} do
         {:ok, html_path } ->
