@@ -25,6 +25,34 @@ defmodule Hnmobi.Main.Mercury do
   #   "next_page_url": null
   # }
 
+  def sanatize() do
+    html = get_content("https://torrentfreak.com/cloudflare-terminates-service-to-sci-hub-domain-names-180205/")
+    sanatize(html)
+  end
+
+  def sanatize(html) do
+    Floki.parse(html) |> Floki.map(fn({name, attrs}) ->
+      attrs = case name do
+        "img" ->
+          srcset_found = Enum.any?(attrs, fn (attr) -> elem(attr, 0) == "srcset" end)
+          if (srcset_found) do
+            Logger.warn "Found one of there srcset fancy bitches!"
+            Enum.map(attrs, fn(attr) ->
+              attribute_name = elem(attr, 0)
+              case attribute_name do
+                "src" -> {"src", String.splitter(elem(attr, 1), "%20") |> Enum.take(1) }
+                _ -> attr
+              end
+            end)
+          else
+            attrs
+          end
+        _ -> attrs
+        end
+      {name, attrs}
+    end) |> Floki.raw_html()
+  end
+
   def get_content (url) do
     Logger.info "Mercury is processing url '#{url}'"
     response = get("parser?url=#{url}")
@@ -41,7 +69,7 @@ defmodule Hnmobi.Main.Mercury do
     cond do
       is_content_empty?(article) -> nil
       has_too_few_words?(article) -> nil
-      true -> article["content"]
+      true -> sanatize(article["content"])
     end
   end
 
