@@ -9,6 +9,7 @@ defmodule HnmobiWeb.PageController do
   alias Hnmobi.Main.Ebook
   alias Hnmobi.Main.HackerNews
   alias Hnmobi.Main.Mercury
+  alias Hnmobi.Main.Mozilla
   alias Hnmobi.Main.Sanitizer
   alias Hnmobi.Users
   alias Hnmobi.Users.User
@@ -91,6 +92,7 @@ defmodule HnmobiWeb.PageController do
     content = case scraper do 
       "mercury" -> Mercury.get_content(article["url"])
       "readability" -> Readability.summarize(article["url"]).article_html
+      "mozilla" -> Mozilla.get_content(article["url"])
     end
 
     content = Sanitizer.sanitize(content)
