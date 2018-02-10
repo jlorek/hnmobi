@@ -5,23 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="turbolinks-cache-control" content="no-cache">
-
     <meta name="csrf-token" content="<%= get_csrf_token() %>">
     <meta name="csrf-param" content="_csrf_token">
 
     <meta name="description" content="Get the hottest Hacker News articles deliviered in a beatiful ebook to you, every weekend.">
-
+    <meta property="og:type" content="website">
     <meta property="og:title" content="hackernews.mobi">
     <meta property="og:url" content="http://www.hackernews.mobi">
     <meta property="og:image" content="http://www.hackernews.mobi/images/glasses.png">
     <meta property="og:description" content="Get the hottest Hacker News articles deliviered in a beatiful ebook to you, every weekend.">
 
-    <link rel="icon" href="favicon.ico">
-
     <title>fetch |> convert |> deliver</title>
-
+    <link rel="icon" href="favicon.ico">
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-
     <link href='https://fonts.googleapis.com/css?family=Leckerli+One' rel='stylesheet'>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
