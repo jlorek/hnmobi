@@ -1,28 +1,11 @@
 <script src="js/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/epub.js/0.2.15/epub.min.js"></script>
 
-<div class="col d-flex flex-column ">
+<div class="col d-flex flex-column">
 
   <div class="p-5">
 
     <h2 class="title">Help</h2>
 
-    <div class="d-flex">
-      <div onclick="book.prevPage();">‹</div>
-      <div id="book"></div>
-      <div onclick="book.nextPage();">›</div>
-    </div>
+    Cillum non ea sunt sit veniam. Ad ullamco deserunt nulla ipsum elit esse. Voluptate incididunt ut ullamco amet esse ea esse veniam cillum ipsum in.
 </div>
-
-
-<script>
-  var book = ePub({
-    spreads: false,
-    styles: {
-      
-    }
-  });
-
-  book.open("/books/apple.epub");
-  book.renderTo("book");
-</script>

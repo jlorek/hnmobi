@@ -1,3 +1,6 @@
+<script src="js/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/epub.js/0.2.15/epub.min.js"></script>
+
 <div class="col d-flex flex-column justify-content-center">  
   <div class="p-5">
 
@@ -30,5 +33,25 @@
 </div>
 
 <div class="col d-flex align-items-center justify-content-center">
-  <img src="images/kindle.png" alt="">
+
+  <div class="book-container d-flex align-items-center justify-content-center">
+  <span onclick="book.prevPage()" class="chevron left"></span>
+      <div class="book-inner-container">
+        <div id="book"></div>
+      </div>
+  <span onclick="book.nextPage()" class="chevron right"></span>
+  </div>
+
 </div>
+
+
+
+<script>
+  var book = ePub({
+    spreads: false,
+  });
+
+  book.open("/books/apple.epub");
+  book.renderTo("book");
+  book.addHeadTag('link', {'rel': 'stylesheet','href': '/css/book.css'});
+</script>
