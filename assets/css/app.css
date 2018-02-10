@@ -1,6 +1,19 @@
 /* This file is for your main application css. */
 
+html, body {
+  height: 100%;
+}
+
+main {
+  flex: 1;
+}
+
 /* Phoenix flash messages */
 .alert:empty {
   display: none;
+}
+
+.title {
+  font-size: 3em;
+  font-family: 'Leckerli One', cursive;
 }

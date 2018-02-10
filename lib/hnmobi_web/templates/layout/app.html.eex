@@ -21,32 +21,26 @@
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
-  <body class="text-left">
+  <body>
 
-    <div class="container-fluid d-flex h-100 p-3 flex-column">
-      <header class="masthead mb-auto">
-        <div class="inner">
-          <h3 class="masthead-brand">hackernews.mobi</h3>
-          <nav class="nav nav-masthead justify-content-center">
-            <a class="nav-link <%= active_class(@conn, page_path(@conn, :index)) %>" href="<%= page_path(@conn, :index) %>">Home</a>
-            <a class="nav-link <%= active_class(@conn, page_path(@conn, :top)) %>" href="<%= page_path(@conn, :top) %>">Articles</a>
-            <a class="nav-link <%= active_class(@conn, debug_path(@conn, :index)) %>" href="<%= debug_path(@conn, :index) %>">Debug</a>
-          </nav>
-        </div>
-      </header>
-
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-
-      <main role="main" class="inner cover container">
+    <div class="container-fluid h-100 d-flex flex-column">
+      
+      <main class="row" role="main">
         <%= render @view_module, @view_template, assigns %>
       </main>
 
-      <footer class="mastfoot mt-auto mr-auto ml-auto">
-        <div class="mx-auto">
-          <p># build with <a href="https://en.wikipedia.org/wiki/Darmstadt">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by <a href="https://twitter.com/jsbeckr">jens</a> &amp; <a href="https://twitter.com/jnslrk">jens</a></p>
-        </div>
+      <footer class="row mr-auto ml-auto">
+      <div class="col">
+        <%= if Mix.env == :dev do %>
+          <p>
+            <a href="<%= page_path(@conn, :index) %>">Home</a> |
+            <a href="<%= page_path(@conn, :top) %>">Articles</a> |
+            <a href="<%= debug_path(@conn, :index) %>">Debug</a>
+          </p>
+        <% end %>
+        <p># build with <a href="https://en.wikipedia.org/wiki/Darmstadt">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by <a href="https://twitter.com/jsbeckr">jens</a> &amp; <a href="https://twitter.com/jnslrk">jens</a></p>
       </footer>
+
     </div>
   </body>
 </html>

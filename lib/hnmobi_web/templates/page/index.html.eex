@@ -1,16 +1,34 @@
-<%= form_for @changeset, page_path(@conn, :create_user), fn f -> %>
-  <div class="form-group">
-    <label for="user[email]">Email</label>
-    <div class="input-group">
-      <%= text_input f, :email, required: true, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
-    </div>
-    <small id="emailHelp" class="form-text text-muted">Create a hn.mobi account with this email adress.</small>
-  </div>
-  <span class="input-group-btn">
-    <%= submit "Create/Login", class: "btn btn-primary" %>
-  </span>
-<% end %>
+<div class="col d-flex flex-column justify-content-center">  
+  <div class="p-5">
 
-  <%# <div data-controller="test">
-    <p data-target="test.bums">You can never see me!</p>
-  </div> %>
+    <h2 class="title">hackernews.mobi</h2>
+
+    <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+    <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+    
+    <p>Get the hottest <a href="https://news.ycombinator.com/" target="_blank">Hacker News</a> articles deliviered in a beatiful ebook to you, every weekend.</p>
+
+    <%= form_for @changeset, page_path(@conn, :create_user), fn f -> %>
+      <div class="form-group">
+        <label for="user[email]">Email</label>
+        <div class="input-group">
+          <%= text_input f, :email, required: true, type: "email", placeholder: "notyourkindle@mail.com", class: "form-control" %>
+        </div>
+        <small id="emailHelp" class="form-text text-muted">Create a hn.mobi account with this email adress.</small>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" required type="checkbox" value="" id="defaultCheck1">
+        <label class="form-check-label" for="defaultCheck1">
+          I understand that the above Email is <b>not</b> my kindle Email.
+        </label>
+      </div>
+      <span class="input-group-btn">
+        <%= submit "Sign In", class: "btn btn-primary mt-3" %>
+      </span>
+    <% end %>
+  </div>
+</div>
+
+<div class="col d-flex align-items-center justify-content-center">
+  <img src="images/kindle.png" alt="">
+</div>
