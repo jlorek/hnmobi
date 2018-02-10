@@ -50,7 +50,6 @@ defmodule Hnmobi.Mixfile do
       {:logger_file_backend, "~> 0.0.10"},
       {:timber, "~> 2.5"},
       {:turbolinks, "~> 0.3.2"},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:readability, "~> 0.9"}
     ]
   end
