@@ -23,6 +23,11 @@ defmodule HnmobiWeb.PageController do
     render(conn, "index.html", changeset: changeset)
   end
 
+
+  def help(conn, _params) do
+    render(conn, "help.html");
+  end
+
   def create_user(conn, %{"user" => user}) do
     email = user["email"]
 
