@@ -1,4 +1,7 @@
 <div class="col-10">
+
+  <%= render "_flash.html", conn: @conn %>
+  
   <div class="panel panel-default">
     <div class="panel-heading">
       <h3 class="panel-title">Top Hackernews articles</h3>

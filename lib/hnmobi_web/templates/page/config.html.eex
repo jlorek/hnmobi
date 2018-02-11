@@ -1,5 +1,8 @@
 <div class="col-6">
   <h2 class="title"><%= @user.email %></h2>
+
+  <%= render "_flash.html", conn: @conn %>
+  
   <%= form_for @changeset, page_path(@conn, :update_user), fn f ->%>
     <div class="form-group">
       <label for="user[email]">Email</label>

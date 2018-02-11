@@ -7,8 +7,7 @@
 
       <h2 class="title">hackernews.mobi</h2>
 
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+      <%= render "_flash.html", conn: @conn %>
       
       <p>Get the hottest <a href="https://news.ycombinator.com/" target="_blank">Hacker News</a> articles deliviered in a beatiful ebook to you, every weekend.</p>
 
