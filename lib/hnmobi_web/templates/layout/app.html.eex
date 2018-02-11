@@ -23,23 +23,23 @@
   </head>
 
   <body>
-
-    <div class="container-fluid h-100 d-flex flex-column">
-      
-      <main class="row" role="main">
-        <%= render @view_module, @view_template, assigns %>
+    <div class="my-container">
+    
+      <main class="container pb-5" role="main">
+        <div class="row justify-content-center">
+          <%= render @view_module, @view_template, assigns %>
+        </div>
       </main>
 
-      <footer class="row mr-auto ml-auto">
-      <div class="col">
-        <%= if Mix.env == :dev do %>
-          <p>
-            <a href="<%= page_path(@conn, :index) %>">Home</a> |
-            <a href="<%= page_path(@conn, :top) %>">Articles</a> |
-            <a href="<%= debug_path(@conn, :index) %>">Debug</a>
-          </p>
-        <% end %>
-        <p># build with <a href="https://en.wikipedia.org/wiki/Darmstadt">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by <a href="https://twitter.com/jsbeckr">jens</a> &amp; <a href="https://twitter.com/jnslrk">jens</a></p>
+      <footer class="footer text-center">
+        <span class="muted">
+          <%= if Mix.env == :dev do %>
+            
+              <a href="<%= page_path(@conn, :index) %>">Home</a> |
+              <a href="<%= page_path(@conn, :top) %>">Articles</a> |
+              <a href="<%= debug_path(@conn, :index) %>">Debug</a>
+          <% end %>
+          # build with <a href="https://en.wikipedia.org/wiki/Darmstadt">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by <a href="https://twitter.com/jsbeckr">jens</a> &amp; <a href="https://twitter.com/jnslrk">jens</a></span>
       </footer>
 
     </div>
