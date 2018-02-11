@@ -8,6 +8,7 @@ defmodule HnmobiWeb.PageController do
 
   alias Hnmobi.Main.Ebook
   alias Hnmobi.Main.HackerNews
+  alias Hnmobi.Main.Algolia
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Main.Mozilla
   alias Hnmobi.Main.Sanitizer
@@ -87,7 +88,7 @@ defmodule HnmobiWeb.PageController do
   end
 
   def top(conn, _params) do
-    result = HackerNews.top()
+    result = Algolia.top()
     render(conn, "top.html", items: result)
   end
 
@@ -95,14 +96,14 @@ defmodule HnmobiWeb.PageController do
     article = HackerNews.details(hnid)
 
     content = case scraper do 
-      "mercury" -> Mercury.get_content(article["url"])
-      "readability" -> Readability.summarize(article["url"]).article_html
-      "mozilla" -> Mozilla.get_content(article["url"])
+      "mercury" -> Mercury.get_content(article.url)
+      "readability" -> Readability.summarize(article.url).article_html
+      "mozilla" -> Mozilla.get_content(article.url)
     end
 
     content = Sanitizer.sanitize(content)
 
-    render(conn, "convert.html", content: content, title: article["title"])
+    render(conn, "convert.html", content: content, title: article.title)
   end
 
   def mobi(conn, %{"hnid" => hnid}) do

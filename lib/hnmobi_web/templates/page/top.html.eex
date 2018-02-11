@@ -5,11 +5,11 @@
   <div class="panel-body">
     <%= for item <- @items do %>
       <p>
-        <a href="<%= page_path(@conn, :mobi, item["id"]) %>">Load</a> |
-        <a href="<%= page_path(@conn, :show, item["id"], :mercury) %>">Mercury</a> |
-        <a href="<%= page_path(@conn, :show, item["id"], :readability) %>">Readability</a> |
-        <a href="<%= page_path(@conn, :show, item["id"], :mozilla) %>">Mozilla</a> |
-        <a href="<%= item["url"] %>"><%= item["title"] %></a>
+        <a href="<%= page_path(@conn, :mobi, item.hnid) %>" data-turbolinks="false">Load</a> |
+        <a href="<%= page_path(@conn, :show, item.hnid, :mercury) %>">Mercury</a> |
+        <a href="<%= page_path(@conn, :show, item.hnid, :readability) %>">Readability</a> |
+        <a href="<%= page_path(@conn, :show, item.hnid, :mozilla) %>">Mozilla</a> |
+        <a href="<%= item.url %>"><%= item.title %></a>
       </p>
     <% end %>
   </div>

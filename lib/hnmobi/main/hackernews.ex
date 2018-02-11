@@ -1,11 +1,14 @@
 defmodule Hnmobi.Main.HackerNews do
   use Tesla
   require Logger
+  alias Hnmobi.Main.Article
 
   plug Tesla.Middleware.Logger
   plug Tesla.Middleware.BaseUrl, "https://hacker-news.firebaseio.com/v0/"
   plug Tesla.Middleware.Headers, %{"User-Agent" => "Kickass Service Worker"}
   plug Tesla.Middleware.JSON
+
+  @items 10
 
 #   {
 #     "by": "pbhowmic",
@@ -34,20 +37,22 @@ defmodule Hnmobi.Main.HackerNews do
 #     "url": "https://www.economist.com/news/leaders/21734454-should-worry-both-government-and-companies-india-has-hole-where-its-middle-class-should-be"
 # }
 
-  def top do
-    Hnmobi.Main.Algolia.top()
+  def top() do
+    response = get("topstories.json")
+    expand_hnids(response.body)
   end
 
-  def top_latest do
-    response = get("topstories.json")
-    json = response.body
+  def best() do
+    response = get("beststories.json")
+    expand_hnids(response.body)
+  end
 
-    items = json
-      |> Enum.take(10)
-      |> Enum.map(&details/1)
-      |> Enum.reject(&is_nil/1)
-      |> Enum.filter(&has_required_keys?/1)
-      |> Enum.filter(&is_url_valid?/1)
+  defp expand_hnids(hnids) do
+    items = hnids
+    |> Enum.take(@items)
+    |> Enum.map(&details/1)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.filter(&is_url_valid?/1)
 
     Logger.info "Items found: #{length(items)}"
     items
@@ -56,16 +61,27 @@ defmodule Hnmobi.Main.HackerNews do
   def details (id) do
     response = get("item/#{id}.json")
     case response.status do
-        200 -> response.body
+        200 -> parse(response.body)
         _ -> nil
     end
   end
 
-  defp has_required_keys?(%{"id" => _, "url" => _, "title" => _}), do: true
+  defp parse(%{"id" => id, "title" => title, "url" => url, "score" => score, "type" => type}) do
+    %Article{
+        hnid: id,
+        title: title,
+        url: url,
+        score: score,
+        type: type
+    }
+  end
 
-  defp has_required_keys?(_), do: false
+  defp parse(_) do
+    Logger.warn "HackerNews item was rejected because of incomplete data"
+    nil
+  end
 
-  defp is_url_valid?(%{"url" => url}) do
+  defp is_url_valid?(%{:url => url}) do
     ok = cond do
       String.contains?(url, "twitter.com") -> false
       String.contains?(url, "github.com") -> false
