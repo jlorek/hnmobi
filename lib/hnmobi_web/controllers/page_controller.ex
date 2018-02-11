@@ -19,13 +19,24 @@ defmodule HnmobiWeb.PageController do
   @kindle_adress "@kindle.com"
 
   def index(conn, _params) do
-    changeset = Users.change_user(%User{})
-    render(conn, "index.html", changeset: changeset)
-  end
+    hash = get_session(conn, :hash)
 
+    # let's check if the session is still valid
+    case Users.get_user_by_hash(hash) do
+      {:error, _} ->
+        changeset = Users.change_user(%User{})
+        render(conn, "index.html", changeset: changeset)
+      {:ok, _} ->
+        redirect(conn, to: page_path(conn, :config_user, hash))
+    end
+  end
 
   def help(conn, _params) do
     render(conn, "help.html");
+  end
+
+  def next_steps(conn, _params) do
+    render(conn, "next-steps.html")
   end
 
   def create_user(conn, %{"user" => user}) do
@@ -57,8 +68,7 @@ defmodule HnmobiWeb.PageController do
     |> Users.send_login_link()
 
     conn
-    |> put_flash(:info, "Check your emails!")
-    |> redirect(to: page_path(conn, :index))
+    |> redirect(to: page_path(conn, :next_steps))
   end
 
   def config_user(conn, %{"hash" => hash}) do
@@ -69,6 +79,7 @@ defmodule HnmobiWeb.PageController do
         |> redirect(to: page_path(conn, :index))
 
       {:ok, user} ->
+        conn = put_session(conn, :hash, hash)
         changeset = Users.change_user(user)
         render(conn, "config.html", user: user, changeset: changeset)
     end

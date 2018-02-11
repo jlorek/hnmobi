@@ -20,6 +20,7 @@ defmodule HnmobiWeb.Router do
     # Main Routes
     get "/", PageController, :index
     get "/help", PageController, :help
+    get "/next-steps", PageController, :next_steps
     get "/top", PageController, :top
     get "/show/:hnid/:scraper", PageController, :show
     get "/mobi/:hnid", PageController, :mobi

@@ -98,6 +98,10 @@ defmodule Hnmobi.Users do
     LoginEmail.deliver(test) |> Mailer.deliver()
   end
 
+  def get_user_by_hash(hash) when is_nil(hash) do
+    {:error, "Login hash was nil"}
+  end
+
   def get_user_by_hash(hash) do
     login_hash = Repo.get_by(LoginHash, hash: hash) |> Repo.preload([:user, user: :login_hash])
     now = Timex.now
