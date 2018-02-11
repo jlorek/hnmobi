@@ -6,7 +6,7 @@ config :hnmobi, :kindlegen_path, "./bin/KindleGen_Mac_i386_v2_9/kindlegen"
 config :hnmobi, Hnmobi.Main.Scheduler,
 jobs: [
   heartbeat: [
-    schedule: "* * * * *",
+    schedule: "0-50/10 * * * *",
     task: {Hnmobi.Main.Scheduler, :heartbeat, []}
   ]
 ]

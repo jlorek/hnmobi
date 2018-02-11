@@ -4,5 +4,7 @@ defmodule Hnmobi.Main.Article do
     url: "",
     score: "",
     type: "",
+    content: "",
+    content_format: :none,
     html_path: ""
 end

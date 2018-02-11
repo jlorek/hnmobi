@@ -7,7 +7,7 @@ defmodule Hnmobi.Main.Scheduler do
   alias Hnmobi.Main.UserEmail
 
   def heartbeat() do
-    Logger.info("'Every minute i'm hustlin.' -- Scheduler")
+    Logger.info("'Every 10 minutes i'm hustlin.' -- Scheduler")
   end
 
   def send_daily() do

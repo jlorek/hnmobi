@@ -25,7 +25,7 @@ defmodule Hnmobi.Main.Mercury do
   #   "next_page_url": null
   # }
 
-  def get_content (url) do
+  def get_content(url) when is_binary(url) do
     Logger.info "Mercury is processing url '#{url}'"
     response = get("parser?url=#{url}")
     if response.status == 200 do
@@ -37,27 +37,24 @@ defmodule Hnmobi.Main.Mercury do
     end
   end
 
+  def get_content(%{:url => url} = article) do
+    content = get_content(url)
+    unless (is_nil(content)) do
+      %{article | content: content, content_format: :html}
+    else
+      article
+    end
+  end
+
   defp extract_content(article) do
     cond do
-      is_content_empty?(article) -> nil
       has_too_few_words?(article) -> nil
       true -> article["content"]
     end
   end
 
-  defp is_content_empty?(%{"content" => content}) do
-    case content do
-      nil -> true
-      "" -> true
-      "<body></body>" -> true
-      "<div></div>" -> true # returned by http://maps.arcgis.com/apps/StorytellingSwipe/index.html?appid=e5160a8d1d3649f09a756c317bd0b56b
-      _ -> false
-    end
-  end
-
-  defp is_content_empty?(_), do: true
-
+  # todo - move these checks into the scraper  
   defp has_too_few_words?(%{"word_count" => word_count}) do
-    word_count < 50
+    word_count < 150
   end
 end

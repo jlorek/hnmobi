@@ -5,64 +5,37 @@ defmodule Hnmobi.Main.Ebook do
 
   require Logger
 
-  alias Hnmobi.Main.Mercury
   alias Hnmobi.Main.HackerNews
   alias Hnmobi.Main.Algolia
-  alias Hnmobi.Main.Github
   alias Hnmobi.Main.Kindlegen
   alias Hnmobi.Main.Pandoc
   alias Hnmobi.Main.Kindleunpack
-  alias Hnmobi.Main.Sanitizer
+  alias Hnmobi.Main.Scraper
+  alias Hnmobi.Main.Writer
   
   def generate_single(hnid) do
     article = HackerNews.details(hnid)
-    generate([article])
+    unless is_nil(article) do
+      generate([article])
+    else
+      Logger.error("Cannot generate eBook for invalid HNID")
+    end
   end
 
   def generate_top() do
-    Algolia.top |> generate()
-  end
-
-  # def generate_multiple(articles) do
-  #   generate(articles)
-  # end
-
-  def prepare_github(%{:url => url} = article) do
-    github_regex = ~r/http[s]*:\/\/[www\.]*github.com\/(?<user>.+)\/(?<repo>.+)\/*/
-    %{"user" => user, "repo" => repo} = Regex.named_captures(github_regex, url)
-    html_path = Github.get_readme(user, repo)
-    |> Pandoc.convert_from_markdown
-
-    %{article | html_path: html_path}
-  end
-  
-  def filter_github(hn_articles) do
-    Enum.filter(hn_articles, fn %{:url => url} -> url =~ ~r/http[s]*:\/\/[www\.]*github.com/ end)
+    Algolia.top() |> generate()
   end
 
   defp generate(hn_articles) do
     Logger.info "Starting ebook generation..."
 
-    # filter github links
-    Logger.info "Filtering for github links"
-    github_articles = filter_github(hn_articles)
-    length = length(github_articles)
-    Logger.info "Found #{length} GitHub links"
-    github_articles = Enum.map(github_articles, fn(gh_meta) -> prepare_github(gh_meta) end)
-
-    # hn_articles still includes the github links?
-    articles = hn_articles
-    |> Enum.map(fn hn_meta -> prepare_html(hn_meta, false) end)
-    |> Enum.reject(&is_nil/1)
-
-    articles = github_articles ++ articles |> Enum.sort(&(&1.score >= &2.score))
-    
-    if (length(articles) == 0) do
-      Logger.warn("Article list is empty, generated eBook will be very sad...")
-    end
+    articles = Enum.map(hn_articles, &Scraper.scrape/1)
+      |> Enum.reject(fn article -> article.content_format == :none end)
+      |> Enum.map(&Writer.create_html/1)
+      |> Enum.filter(&File.exists?(&1.html_path))
 
     toc_path = prepare_toc(articles)
-    html_paths = Enum.map(articles, fn result -> result.html_path end)
+    html_paths = Enum.map(articles, fn article -> article.html_path end)
     html_paths = [prepare_header() |[toc_path | html_paths]] ++ [prepare_footer()]
     
     {:ok, working_directory} = Temp.mkdir
@@ -78,45 +51,6 @@ defmodule Hnmobi.Main.Ebook do
         end
         _ -> {:error, ".epub conversion failed"}
     end
-  end
-
-  defp prepare_html(%{:hnid => id, :url => url, :title => title} = article, debug) do
-    content = Mercury.get_content(url) |> Sanitizer.sanitize()
-
-    unless is_nil(content) do
-      case Temp.path %{suffix: ".html"} do
-        {:ok, html_path } ->
-          Logger.info "html_path = #{html_path}"
-          case File.open html_path, [:write, :utf8] do
-            {:ok, html_handle} ->
-              if debug, do: add_debug_page(html_handle, article)
-              # https://www.w3schools.com/cssref/pr_print_pagebb.asp
-              IO.write html_handle, "<a name=\"#{id}\"></a>"
-              IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
-              IO.write html_handle, content
-              File.close html_handle
-              %{ article | html_path: html_path }
-            _ ->
-              Logger.error "Could not open html article file"
-              nil
-          end
-        _ ->
-          Logger.error "Could not generate html article path"
-          nil
-      end
-    else
-      nil
-    end
-  end
-
-  defp add_debug_page(html_handle, article)do
-    IO.write html_handle, "<h1 style=\"page-break-before:always\">#{article.title}</h1>"
-    IO.write html_handle, "<p>Source: <a href=\"#{article.url}\">#{article.url}</a></p>"
-    IO.write html_handle, "<p>ID: #{article.hnid}</p>"
-    # IO.write html_handle, "<p>By: #{article.by}</p>"
-    IO.write html_handle, "<p>Score: #{article.score}</p>"
-    # IO.write html_handle, "<p>Time: #{article.time}</p>"
-    # IO.write html_handle, "<p>Type: #{article.type}</p>"
   end
 
   defp prepare_header() do

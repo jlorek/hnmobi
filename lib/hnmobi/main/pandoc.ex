@@ -1,6 +1,8 @@
 defmodule Hnmobi.Main.Pandoc do
   require Logger
 
+  alias Hnmobi.Main.Article
+
   defp cover_path() do
     Path.join(System.cwd!(), "pandoc/static/cover.jpg")
   end
@@ -53,5 +55,33 @@ defmodule Hnmobi.Main.Pandoc do
 
     execute_shell(shell_arguments)
     {:ok, epub_path}
+  end
+
+  defp prepare_html(article, debug \\ false) do
+
+    unless is_nil(content) do
+      case Temp.path %{suffix: ".html"} do
+        {:ok, html_path } ->
+          Logger.info "html_path = #{html_path}"
+          case File.open html_path, [:write, :utf8] do
+            {:ok, html_handle} ->
+              if debug, do: add_debug_page(html_handle, article)
+              # https://www.w3schools.com/cssref/pr_print_pagebb.asp
+              IO.write html_handle, "<a name=\"#{id}\"></a>"
+              IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
+              IO.write html_handle, content
+              File.close html_handle
+              %{ article | html_path: html_path }
+            _ ->
+              Logger.error "Could not open html article file"
+              nil
+          end
+        _ ->
+          Logger.error "Could not generate html article path"
+          nil
+      end
+    else
+      nil
+    end
   end
 end

@@ -52,7 +52,6 @@ defmodule Hnmobi.Main.HackerNews do
     |> Enum.take(@items)
     |> Enum.map(&details/1)
     |> Enum.reject(&is_nil/1)
-    |> Enum.filter(&is_url_valid?/1)
 
     Logger.info "Items found: #{length(items)}"
     items
@@ -77,20 +76,7 @@ defmodule Hnmobi.Main.HackerNews do
   end
 
   defp parse(_) do
-    Logger.warn "HackerNews item was rejected because of incomplete data"
+    Logger.warn "Hackernews item was rejected because of incomplete data"
     nil
-  end
-
-  defp is_url_valid?(%{:url => url}) do
-    ok = cond do
-      String.contains?(url, "twitter.com") -> false
-      String.contains?(url, "github.com") -> false
-      String.contains?(url, "youtube.com") -> false
-      String.ends_with?(url, ".pdf") -> false
-      true -> true
-    end
-
-    unless ok do Logger.info "Article '#{url}' was rejected by URL filter" end
-    ok
   end
 end
