@@ -1,16 +1,18 @@
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Top Hackernews articles</h3>
-  </div>
-  <div class="panel-body">
-    <%= for item <- @items do %>
-      <p>
-        <a href="<%= page_path(@conn, :mobi, item["id"]) %>">Load</a> |
-        <a href="<%= page_path(@conn, :show, item["id"], :mercury) %>">Mercury</a> |
-        <a href="<%= page_path(@conn, :show, item["id"], :readability) %>">Readability</a> |
-        <a href="<%= page_path(@conn, :show, item["id"], :mozilla) %>">Mozilla</a> |
-        <a href="<%= item["url"] %>"><%= item["title"] %></a>
-      </p>
-    <% end %>
+<div class="col-10">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Top Hackernews articles</h3>
+    </div>
+    <div class="panel-body">
+      <%= for item <- @items do %>
+        <p>
+          <a href="<%= page_path(@conn, :mobi, item["id"]) %>">Load</a> |
+          <a href="<%= page_path(@conn, :show, item["id"], :mercury) %>">Mercury</a> |
+          <a href="<%= page_path(@conn, :show, item["id"], :readability) %>">Readability</a> |
+          <a href="<%= page_path(@conn, :show, item["id"], :mozilla) %>">Mozilla</a> |
+          <a href="<%= item["url"] %>"><%= item["title"] %></a>
+        </p>
+      <% end %>
+    </div>
   </div>
 </div>

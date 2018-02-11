@@ -1,36 +1,38 @@
-<h1>CONFIG for <%= @user.email %></h1>
-<%= form_for @changeset, page_path(@conn, :update_user), fn f ->%>
-  <div class="form-group">
-    <label for="user[email]">Email</label>
-    <div class="input-group">
-      <%= text_input f, :email, required: true, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
-    </div>
-    <small id="emailHelp" class="form-text text-muted">Your general email adress.</small>
+<div class="col-6">
+  <h2 class="title"><%= @user.email %></h2>
+  <%= form_for @changeset, page_path(@conn, :update_user), fn f ->%>
+    <div class="form-group">
+      <label for="user[email]">Email</label>
+      <div class="input-group">
+        <%= text_input f, :email, required: true, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
+      </div>
+      <small id="emailHelp" class="form-text text-muted">Your general email adress.</small>
 
-    <label for="user[kindle]">Kindle Email</label>
-    <div class="input-group">
-      <%= text_input f, :kindle, required: true, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
-    </div>
-    <small id="kindleHelp" class="form-text text-muted">Your kindle email adress.</small>
+      <label for="user[kindle]">Kindle Email</label>
+      <div class="input-group">
+        <%= text_input f, :kindle, required: true, type: "email", placeholder: "franz.kafka@germany.de", class: "form-control" %>
+      </div>
+      <small id="kindleHelp" class="form-text text-muted">Your kindle email adress.</small>
 
-    <label for="user[daily]">@daily</label>
-    <div class="input-group">
-      <%= checkbox f, :daily, class: "form-control" %>
-    </div>
-    <small id="dailyHelp" class="form-text text-muted">Do you want the daily hn.mobi issue?</small>
-  
-    <label for="user[weekly]">@weekly</label>
-    <div class="input-group">
-      <%= checkbox f, :weekly, class: "form-control" %>
-    </div>
-    <small id="weeklyHelp" class="form-text text-muted">Do you want the weekly hn.mobi issue?</small>
-
-    <%= inputs_for f, :login_hash, fn lh -> %>
-      <%= hidden_input lh, :hash%>
-    <% end %> 
+      <label for="user[daily]">@daily</label>
+      <div class="input-group">
+        <%= checkbox f, :daily, class: "form-control" %>
+      </div>
+      <small id="dailyHelp" class="form-text text-muted">Do you want the daily hn.mobi issue?</small>
     
-  </div>
-  <span class="input-group-btn">
-    <%= submit "Save", class: "btn btn-primary" %>
-  </span>
-<% end %>
+      <label for="user[weekly]">@weekly</label>
+      <div class="input-group">
+        <%= checkbox f, :weekly, class: "form-control" %>
+      </div>
+      <small id="weeklyHelp" class="form-text text-muted">Do you want the weekly hn.mobi issue?</small>
+
+      <%= inputs_for f, :login_hash, fn lh -> %>
+        <%= hidden_input lh, :hash%>
+      <% end %> 
+      
+    </div>
+    <span class="input-group-btn">
+      <%= submit "Save", class: "btn btn-primary" %>
+    </span>
+  <% end %>
+</div>
