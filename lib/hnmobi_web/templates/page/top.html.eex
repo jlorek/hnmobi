@@ -15,4 +15,15 @@
       <% end %>
     </div>
   </div>
+  <div class="panel-body">
+    <%= for item <- @items do %>
+      <p>
+        <a href="<%= page_path(@conn, :mobi, item.hnid) %>" data-turbolinks="false">Load</a> |
+        <a href="<%= page_path(@conn, :show, item.hnid, :mercury) %>">Mercury</a> |
+        <a href="<%= page_path(@conn, :show, item.hnid, :readability) %>">Readability</a> |
+        <a href="<%= page_path(@conn, :show, item.hnid, :mozilla) %>">Mozilla</a> |
+        <a href="<%= item.url %>"><%= item.title %></a>
+      </p>
+    <% end %>
+  </div>
 </div>

@@ -49,6 +49,7 @@ defmodule Hnmobi.Main.Mercury do
     case content do
       nil -> true
       "" -> true
+      "<body></body>" -> true
       "<div></div>" -> true # returned by http://maps.arcgis.com/apps/StorytellingSwipe/index.html?appid=e5160a8d1d3649f09a756c317bd0b56b
       _ -> false
     end

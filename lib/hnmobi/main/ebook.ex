@@ -7,6 +7,7 @@ defmodule Hnmobi.Main.Ebook do
 
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Main.HackerNews
+  alias Hnmobi.Main.Algolia
   alias Hnmobi.Main.Github
   alias Hnmobi.Main.Kindlegen
   alias Hnmobi.Main.Pandoc
@@ -19,24 +20,24 @@ defmodule Hnmobi.Main.Ebook do
   end
 
   def generate_top() do
-    HackerNews.top |> generate()
+    Algolia.top |> generate()
   end
 
-  def generate_multiple(articles) do
-    generate(articles)
-  end
+  # def generate_multiple(articles) do
+  #   generate(articles)
+  # end
 
-  def prepare_github(%{"url" => url} = meta) do
+  def prepare_github(%{:url => url} = article) do
     github_regex = ~r/http[s]*:\/\/[www\.]*github.com\/(?<user>.+)\/(?<repo>.+)\/*/
     %{"user" => user, "repo" => repo} = Regex.named_captures(github_regex, url)
     html_path = Github.get_readme(user, repo)
     |> Pandoc.convert_from_markdown
 
-    %{meta: meta, html_path: html_path}
+    %{article | html_path: html_path}
   end
   
   def filter_github(hn_articles) do
-    Enum.filter(hn_articles, fn %{"url" => url} -> url =~ ~r/http[s]*:\/\/[www\.]*github.com/ end)
+    Enum.filter(hn_articles, fn %{:url => url} -> url =~ ~r/http[s]*:\/\/[www\.]*github.com/ end)
   end
 
   defp generate(hn_articles) do
@@ -44,18 +45,23 @@ defmodule Hnmobi.Main.Ebook do
 
     # filter github links
     Logger.info "Filtering for github links"
-    github_links = filter_github(hn_articles)
-    length = length(github_links)
-    Logger.info "Found #{length} links"
-    github_articles = Enum.map(github_links, fn(gh_meta) -> prepare_github(gh_meta) end)
+    github_articles = filter_github(hn_articles)
+    length = length(github_articles)
+    Logger.info "Found #{length} GitHub links"
+    github_articles = Enum.map(github_articles, fn(gh_meta) -> prepare_github(gh_meta) end)
 
-    # |> Enum.map(&prepare_html/1)
-    articles = Enum.map(hn_articles, fn hn_meta -> prepare_html(hn_meta, true) end)
+    # hn_articles still includes the github links?
+    articles = hn_articles
+    |> Enum.map(fn hn_meta -> prepare_html(hn_meta, false) end)
     |> Enum.reject(&is_nil/1)
 
-    articles = github_articles ++ articles
+    articles = github_articles ++ articles |> Enum.sort(&(&1.score >= &2.score))
     
-    toc_path = prepare_toc Enum.map(articles, fn article -> article.meta end)
+    if (length(articles) == 0) do
+      Logger.warn("Article list is empty, generated eBook will be very sad...")
+    end
+
+    toc_path = prepare_toc(articles)
     html_paths = Enum.map(articles, fn result -> result.html_path end)
     html_paths = [prepare_header() |[toc_path | html_paths]] ++ [prepare_footer()]
     
@@ -74,21 +80,22 @@ defmodule Hnmobi.Main.Ebook do
     end
   end
 
-  defp prepare_html(%{"id" => id, "url" => url, "title" => title} = meta, debug) do
+  defp prepare_html(%{:hnid => id, :url => url, :title => title} = article, debug) do
     content = Mercury.get_content(url) |> Sanitizer.sanitize()
+
     unless is_nil(content) do
       case Temp.path %{suffix: ".html"} do
         {:ok, html_path } ->
           Logger.info "html_path = #{html_path}"
           case File.open html_path, [:write, :utf8] do
             {:ok, html_handle} ->
-              if debug, do: add_article_metadata(html_handle, meta)
+              if debug, do: add_debug_page(html_handle, article)
               # https://www.w3schools.com/cssref/pr_print_pagebb.asp
-              IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
               IO.write html_handle, "<a name=\"#{id}\"></a>"
+              IO.write html_handle, "<h1 style=\"page-break-before:always\">#{title}</h1>"
               IO.write html_handle, content
               File.close html_handle
-              %{ meta: meta, html_path: html_path }
+              %{ article | html_path: html_path }
             _ ->
               Logger.error "Could not open html article file"
               nil
@@ -102,14 +109,14 @@ defmodule Hnmobi.Main.Ebook do
     end
   end
 
-  defp add_article_metadata(html_handle, meta)do
-    IO.write html_handle, "<h1 style=\"page-break-before:always\">#{meta["title"]}</h1>"
-    IO.write html_handle, "<p>Source: <a href=\"#{meta["url"]}\">#{meta["url"]}</a></p>"
-    IO.write html_handle, "<p>ID: #{meta["id"]}</p>"
-    IO.write html_handle, "<p>By: #{meta["by"]}</p>"
-    IO.write html_handle, "<p>Score: #{meta["score"]}</p>"
-    IO.write html_handle, "<p>Time: #{meta["time"]}</p>"
-    IO.write html_handle, "<p>Type: #{meta["type"]}</p>"
+  defp add_debug_page(html_handle, article)do
+    IO.write html_handle, "<h1 style=\"page-break-before:always\">#{article.title}</h1>"
+    IO.write html_handle, "<p>Source: <a href=\"#{article.url}\">#{article.url}</a></p>"
+    IO.write html_handle, "<p>ID: #{article.hnid}</p>"
+    # IO.write html_handle, "<p>By: #{article.by}</p>"
+    IO.write html_handle, "<p>Score: #{article.score}</p>"
+    # IO.write html_handle, "<p>Time: #{article.time}</p>"
+    # IO.write html_handle, "<p>Type: #{article.type}</p>"
   end
 
   defp prepare_header() do
@@ -142,7 +149,7 @@ defmodule Hnmobi.Main.Ebook do
     
     {:ok, html_handle} = File.open html_path, [:write, :utf8]
     IO.write html_handle, "<h1 style=\"page-break-before:always\">Articles</h1>"
-    Enum.each articles, &IO.write(html_handle, "<h2># <a href=\"##{&1["id"]}\">#{&1["title"]}</a></h2>")
+    Enum.each articles, &IO.write(html_handle, "<h2># <a href=\"##{&1.hnid}\">#{&1.title}</a></h2>")
     File.close html_handle
     html_path
   end

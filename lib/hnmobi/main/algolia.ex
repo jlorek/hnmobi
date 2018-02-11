@@ -2,10 +2,13 @@ defmodule Hnmobi.Main.Algolia do
     use Tesla
     require Logger
     require Timex
-
+    alias Hnmobi.Main.Article
+    
     plug Tesla.Middleware.Logger
     plug Tesla.Middleware.BaseUrl, "http://hn.algolia.com/api/v1/"
     plug Tesla.Middleware.JSON
+
+    @items 10
 
     # {
     #     "created_at": "2018-02-02T12:40:34.000Z",
@@ -46,10 +49,8 @@ defmodule Hnmobi.Main.Algolia do
     #     }
     # },
 
-    @items 10
-
-    def top() do
-        yesterday = Timex.now() |> Timex.shift(days: -1) |> Timex.to_unix()
+    def top(days \\ 1) do
+        yesterday = Timex.now() |> Timex.shift(days: -days) |> Timex.to_unix()
         response = get("search?tags=story&hitsPerPage=#{@items}&numericFilters=created_at_i>#{yesterday}")
         
         if response.status == 200 do
@@ -63,11 +64,11 @@ defmodule Hnmobi.Main.Algolia do
     end
 
     defp parse(%{"objectID" => id, "title" => title, "url" => url, "points" => score}) do
-        %{
-            "id" => id,
-            "title" => title,
-            "url" => url,
-            "score" => score
+        %Article{
+            hnid: id,
+            title: title,
+            url: url,
+            score: score
         }
     end
 

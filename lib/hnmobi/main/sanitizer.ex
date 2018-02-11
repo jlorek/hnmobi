@@ -2,10 +2,14 @@ defmodule Hnmobi.Main.Sanitizer do
   require Logger
 
   def sanitize(html) do
-    Floki.parse(html)
-    |> Floki.map(&fix_img_srcset/1)
-    |> Floki.map(&remove_iframe_and_embed/1)
-    |> Floki.raw_html()
+    if (is_nil(html)) do
+      nil
+    else
+      Floki.parse(html)
+      |> Floki.map(&fix_img_srcset/1)
+      |> Floki.map(&remove_iframe_and_embed/1)
+      |> Floki.raw_html()
+    end
   end
 
   defp remove_iframe_and_embed({name, _attrs} = element) do
