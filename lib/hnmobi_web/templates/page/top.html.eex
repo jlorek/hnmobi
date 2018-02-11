@@ -3,6 +3,8 @@
   <%= render "_flash.html", conn: @conn %>
   
   <div class="panel panel-default">
+    <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+    <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
     <div class="panel-heading">
       <h3 class="panel-title">Top Hackernews articles</h3>
     </div>

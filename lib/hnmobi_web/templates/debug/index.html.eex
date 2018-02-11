@@ -1,4 +1,7 @@
 <div class="col-6">
+  <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+  <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+
   <h1 class="cover-heading">Debug - good luck!</h1>
   <p><a href="<%= debug_path(@conn, :show) %>">Show</a></p>
   <p><a href="<%= debug_path(@conn, :download) %>" data-turbolinks="false">Download</a></p>

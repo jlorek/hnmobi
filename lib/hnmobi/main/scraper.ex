@@ -17,17 +17,18 @@ defmodule Hnmobi.Main.Scraper do
     remove_empty_content(article)
   end
 
-  defp decide_engine(%{:url => url} = article) do
+  defp decide_engine(%{:url => url}) do
     cond do
-      is_nil(url) -> :none
-      skip_url?(article) -> :none
+      skip_url?(url) -> :none
       String.match?(url, ~r/http[s]*:\/\/[www\.]*github.com/) -> :github
       true -> :mercury
     end
   end
 
-  defp skip_url?(%{:url => url}) do
+  defp skip_url?(url) do
     skip = cond do
+      is_nil(url) -> true
+      url == "" -> true
       String.contains?(url, "twitter.com") -> true
       String.contains?(url, "youtube.com") -> true
       String.ends_with?(url, ".pdf") -> true
@@ -48,6 +49,7 @@ defmodule Hnmobi.Main.Scraper do
     end
 
     case empty do
+      # reset the content format to avoid further processing
       true -> %{article | content: "", content_format: :none}
       false -> article
     end
