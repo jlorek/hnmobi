@@ -106,23 +106,34 @@ defmodule HnmobiWeb.PageController do
   def show(conn, %{"hnid" => hnid, "scraper" => scraper}) do
     article = HackerNews.details(hnid)
 
-    content = case scraper do 
-      "mercury" -> Mercury.get_content(article.url)
-      "readability" -> Readability.summarize(article.url).article_html
-      "mozilla" -> Mozilla.get_content(article.url)
+    case is_nil(article) do
+      true ->
+        conn
+        |> put_flash(:error, "HNID #{hnid} has some missing properties")
+        |> redirect(to: "/top")
+      false ->
+        content = case scraper do 
+          "mercury" -> Mercury.get_content(article.url)
+          "readability" -> Readability.summarize(article.url).article_html
+          "mozilla" -> Mozilla.get_content(article.url)
+        end
+
+        content = Sanitizer.sanitize(content)
+        render(conn, "convert.html", content: content, title: article.title)
     end
-
-    content = Sanitizer.sanitize(content)
-
-    render(conn, "convert.html", content: content, title: article.title)
   end
 
   def mobi(conn, %{"hnid" => hnid}) do
-    {:ok, mobi_path} = Ebook.generate_single(hnid)
-
-    conn
-    |> put_resp_content_type("application/octet-stream", nil)
-    |> put_resp_header("content-disposition", ~s[attachment; filename="hnid-#{hnid}.mobi"])
-    |> send_file(200, mobi_path)
+    case Ebook.generate_single(hnid) do
+      {:ok, mobi_path} ->
+        conn
+        |> put_resp_content_type("application/octet-stream", nil)
+        |> put_resp_header("content-disposition", ~s[attachment; filename="hnid-#{hnid}.mobi"])
+        |> send_file(200, mobi_path)
+      _ ->
+        conn
+        |> put_flash(:error, "Could not generate eBook for HNID #{hnid}")
+        |> redirect(to: "/top")
+    end
   end
 end
