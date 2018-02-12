@@ -24,6 +24,9 @@ $ nano ~/.ssh/authorized_keys
 $ chmod 600 ~/.ssh/authorized_keys
 ```
 
+### create swapfile
+https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-16-04
+
 ## node via nvm
 https://github.com/creationix/nvm#install-script
 ```
