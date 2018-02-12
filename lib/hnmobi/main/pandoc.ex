@@ -28,7 +28,7 @@ defmodule Hnmobi.Main.Pandoc do
     {:ok, working_directory} = Temp.mkdir
     html_path = Path.join(working_directory, "readme.html")
 
-    pandoc_arguments = " -f gfm -t html -o #{html_path} #{md_path}"
+    pandoc_arguments = " --verbose -f gfm -t html -o #{html_path} #{md_path}"
     shell_arguments = get_pandoc_path() <> pandoc_arguments
     execute_shell(shell_arguments)
 
@@ -49,7 +49,7 @@ defmodule Hnmobi.Main.Pandoc do
     input_files = Enum.join(files, " ")
 
     pandoc_arguments =
-      " -s -f html -t epub --epub-cover-image=#{cover_path} -o #{epub_path} #{input_files}"
+      " --verbose -s -f html -t epub --epub-cover-image=#{cover_path} -o #{epub_path} #{input_files}"
 
     shell_arguments = get_pandoc_path() <> pandoc_arguments
 
