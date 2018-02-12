@@ -24,8 +24,18 @@ $ nano ~/.ssh/authorized_keys
 $ chmod 600 ~/.ssh/authorized_keys
 ```
 
-### create swapfile
+## create swapfile
 https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-16-04
+
+## update LC_ALL
+https://stackoverflow.com/a/32407431/1010496
+```
+$ nano -w /etc/default/locale
+# append
+# LC_ALL=en_US.UTF-8
+# or maybe just
+$ echo 'LC_ALL=en_US.UTF-8' | sudo tee -a /etc/default/locale
+```
 
 ## node via nvm
 https://github.com/creationix/nvm#install-script
