@@ -5,6 +5,9 @@ defmodule Hnmobi.Main.Scraper do
   alias Hnmobi.Main.Github
   alias Hnmobi.Main.Mozilla
 
+  # https://blog.medium.com/read-time-and-you-bc2048ab620c
+  @words_per_minute 275  
+
   def scrape(%{:url => _url} = article) do
     engine = decide_engine(article)
     Logger.info("Using '#{engine}' for '#{article.url}'")
@@ -16,7 +19,7 @@ defmodule Hnmobi.Main.Scraper do
       _ -> article
     end
 
-    remove_empty_content(article)
+    article |> remove_short_content() |> calculate_reading_time()
   end
 
   defp decide_engine(%{:url => url}) do
@@ -43,20 +46,21 @@ defmodule Hnmobi.Main.Scraper do
     skip
   end
 
-  defp remove_empty_content(%{:content => content} = article) do
-    empty = case content do
-      nil -> true
-      "" -> true
-      "<body></body>" -> true
-      "<div></div>" -> true
-      _ -> false
-    end
+  defp remove_short_content(article) do
+    words = String.splitter(article.content, " ") |> Enum.count()
+    too_short = (words < @words_per_minute)
 
-    case empty do
+    case too_short do
       # reset the content format to avoid further processing
       true -> %{article | content: "", content_format: :none}
       false -> article
     end
+  end
+
+  defp calculate_reading_time(article) do
+    words = String.splitter(article.content, " ") |> Enum.count()
+    time = round(words / @words_per_minute)
+    %{article | reading_time_min: time }
   end
 
 end

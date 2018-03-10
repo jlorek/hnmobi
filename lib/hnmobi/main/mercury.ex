@@ -30,7 +30,7 @@ defmodule Hnmobi.Main.Mercury do
     response = get("parser?url=#{url}")
     if response.status == 200 do
       json = response.body
-      extract_content(json)
+      json["content"]
     else
       Logger.warn "Could not fetch '#{url}' with Mercury"
       nil
@@ -44,17 +44,5 @@ defmodule Hnmobi.Main.Mercury do
     else
       article
     end
-  end
-
-  defp extract_content(article) do
-    cond do
-      has_too_few_words?(article) -> nil
-      true -> article["content"]
-    end
-  end
-
-  # todo - move these checks into the scraper  
-  defp has_too_few_words?(%{"word_count" => word_count}) do
-    word_count < 150
   end
 end

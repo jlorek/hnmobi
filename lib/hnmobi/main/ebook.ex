@@ -34,7 +34,7 @@ defmodule Hnmobi.Main.Ebook do
       |> Enum.reject(fn article -> article.content_format == :none end)
       |> Enum.map(&Writer.create_html/1)
       |> Enum.filter(&File.exists?(&1.html_path))
-      |> Enum.take(6)
+      |> Enum.take(8)
 
     toc_path = prepare_toc(articles)
     html_paths = Enum.map(articles, fn article -> article.html_path end)
@@ -86,8 +86,10 @@ defmodule Hnmobi.Main.Ebook do
     {:ok, html_handle} = File.open html_path, [:write, :utf8]
     IO.write html_handle, "<h1 style=\"page-break-before:always\">Articles</h1>"
     IO.write html_handle, "<ul>"
-    Enum.each articles, &IO.write(html_handle, "<li>❂ <a href=\"##{&1.hnid}\">#{&1.title}</a></li>")
-    IO.write html_handle, "<ul>"
+    Enum.each(articles, fn article ->
+      IO.write(html_handle, "<li><a href=\"##{article.hnid}\">#{article.title}</a> (#{article.reading_time_min} min)</li>")
+    end)
+    IO.write html_handle, "</ul>"
     File.close html_handle
     html_path
   end
