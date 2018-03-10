@@ -15,7 +15,8 @@ defmodule HnmobiWeb.DebugController do
     # value = Timex.now |> Timex.to_unix
     # value = Enum.join(Users.get_daily_recipients, ", ")
     # value = System.cwd!()
-    value = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
+    # value = Path.join(System.cwd!(), "pandoc/static/cover.jpg")
+    value = HnmobiWeb.Router.Helpers.static_path(conn, "/images/ebook_logo.jog")
     render conn, "show_value.html", value: value
   end
 
