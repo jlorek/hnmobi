@@ -58,7 +58,7 @@ defmodule Hnmobi.Main.Algolia do
             |> Enum.map(&parse/1)
             |> Enum.reject(&is_nil/1)
         else
-            Logger.error "Algolia API returned an error"
+            Logger.error("Algolia API returned an error")
             []
         end
     end
@@ -73,7 +73,7 @@ defmodule Hnmobi.Main.Algolia do
     end
 
     defp parse(_) do
-        Logger.warn "Algolia search result rejected because of incomplete data"
+        Logger.warn("Algolia search result rejected because of incomplete data")
         nil
     end
 end

@@ -1,4 +1,6 @@
 defmodule Hnmobi.Main.Github do
+  # example
+  # http://localhost:4000/mobi/16352611
   use Tesla
   require Logger
 

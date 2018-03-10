@@ -1,6 +1,8 @@
 defmodule Hnmobi.Main.Mozilla do
   require Logger
 
+  alias Hnmobi.Main.Sanitizer
+
   def get_content(url) when is_binary(url) do
     script_path = Path.join(System.cwd!(), "bin/parser/parser.js")
     shell_arguments = "node #{script_path} #{url}"
@@ -9,6 +11,11 @@ defmodule Hnmobi.Main.Mozilla do
     parser_process = System.cmd(System.get_env("SHELL"), ["-c", shell_arguments])
     parser_output = elem(parser_process, 0)
     %{"content" => content} = Poison.decode!(parser_output)
+
+    rx_base_url = ~r/(?<base_url>http[s]*:\/\/[www\.]*[^\/]+)/
+    %{"base_url" => base_url} = Regex.named_captures(rx_base_url, url)
+    content = Sanitizer.make_img_src_absolute(content, base_url)
+
     content
   end
 

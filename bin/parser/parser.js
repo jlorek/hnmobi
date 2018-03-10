@@ -14,13 +14,17 @@ req.get(uri, function (error, response, body) {
         ProcessExternalResources: false
       }
     });
+    
     var article = new Readability({}, doc).parse();
 
     var json = {
       'title': article.title,
       'excerpt': article.excerpt,
       'author': article.byline,
-      'content': article.content
+      'content': article.content,
+      'length': article.length,
+      'byline': article.byline,
+      'uri': article.uri
     }
 
     console.log(JSON.stringify(json));

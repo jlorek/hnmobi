@@ -12,6 +12,35 @@ defmodule Hnmobi.Main.Sanitizer do
     end
   end
 
+  def make_img_src_absolute(html, base_url) do
+    Floki.parse(html)
+    |> Floki.map(&fix_relative_img_src(&1, base_url))
+    |> Floki.raw_html()
+  end
+
+  defp fix_relative_img_src({name, attrs} = element, base_url) do
+    case name do
+      "img" -> { name, fix_relative_img_src_attribute(attrs, base_url) }
+      _ -> element
+    end
+  end
+
+  defp fix_relative_img_src_attribute(attrs, base_url) do
+    Enum.map(attrs, fn attr ->
+      attribute_name = elem(attr, 0)
+      case attribute_name do
+        "src" ->
+          attribute_value = elem(attr, 1)
+          if (String.starts_with?(attribute_value, "undefined")) do
+            { "src", String.replace(attribute_value, "undefined", base_url) }
+          else
+            attr
+          end
+        _ -> attr
+      end
+    end)
+  end
+
   defp remove_iframe_and_embed({name, _attrs} = element) do
     case name do
       "iframe" ->

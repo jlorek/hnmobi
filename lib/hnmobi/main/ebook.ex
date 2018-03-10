@@ -29,7 +29,8 @@ defmodule Hnmobi.Main.Ebook do
   defp generate(hn_articles) do
     Logger.info "Starting ebook generation..."
 
-    articles = Enum.map(hn_articles, &Scraper.scrape/1)
+    articles = hn_articles
+      |> Enum.map(&Scraper.scrape/1)
       |> Enum.reject(fn article -> article.content_format == :none end)
       |> Enum.map(&Writer.create_html/1)
       |> Enum.filter(&File.exists?(&1.html_path))

@@ -3,6 +3,7 @@ defmodule Hnmobi.Main.Scraper do
 
   alias Hnmobi.Main.Mercury
   alias Hnmobi.Main.Github
+  alias Hnmobi.Main.Mozilla
 
   def scrape(%{:url => _url} = article) do
     engine = decide_engine(article)
@@ -10,7 +11,8 @@ defmodule Hnmobi.Main.Scraper do
 
     article = case engine do
       :github -> Github.get_content(article)
-      :mercury -> Mercury.get_content(article) 
+      :mercury -> Mercury.get_content(article)
+      :mozilla -> Mozilla.get_content(article)
       _ -> article
     end
 
@@ -21,7 +23,8 @@ defmodule Hnmobi.Main.Scraper do
     cond do
       skip_url?(url) -> :none
       String.match?(url, ~r/http[s]*:\/\/[www\.]*github.com/) -> :github
-      true -> :mercury
+      #true -> :mercury
+      true -> :mozilla
     end
   end
 
@@ -29,6 +32,7 @@ defmodule Hnmobi.Main.Scraper do
     skip = cond do
       is_nil(url) -> true
       url == "" -> true
+      String.contains?(url, "gist.github.com") -> true
       String.contains?(url, "twitter.com") -> true
       String.contains?(url, "youtube.com") -> true
       String.ends_with?(url, ".pdf") -> true

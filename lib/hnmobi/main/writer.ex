@@ -51,6 +51,7 @@ defmodule Hnmobi.Main.Writer do
         case File.open(md_path, [:write, :utf8]) do
           {:ok, handle} ->
             if debug, do: write_md_debug(article, handle)
+            #IO.write handle, "## <a name=\"#{id}\"></a>#{title}\n"
             IO.write handle, content
             File.close handle
             html_path = Pandoc.convert_from_markdown(md_path)
