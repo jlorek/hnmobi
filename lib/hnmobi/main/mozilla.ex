@@ -10,13 +10,14 @@ defmodule Hnmobi.Main.Mozilla do
     Logger.info("Executing shell command '#{shell_arguments}'")
     parser_process = System.cmd(System.get_env("SHELL"), ["-c", shell_arguments])
     parser_output = elem(parser_process, 0)
-    %{"content" => content} = Poison.decode!(parser_output)
 
-    rx_base_url = ~r/(?<base_url>http[s]*:\/\/[www\.]*[^\/]+)/
-    %{"base_url" => base_url} = Regex.named_captures(rx_base_url, url)
-    content = Sanitizer.make_img_src_absolute(content, base_url)
-
-    content
+    case Poison.decode(parser_output) do
+      {:ok, json} ->
+        rx_base_url = ~r/(?<base_url>http[s]*:\/\/[www\.]*[^\/]+)/
+        %{"base_url" => base_url} = Regex.named_captures(rx_base_url, url)
+        Sanitizer.make_img_src_absolute(json["content"], base_url)
+      _ -> nil
+    end
   end
 
   def get_content(%{:url => url} = article) do

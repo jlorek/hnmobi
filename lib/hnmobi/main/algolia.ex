@@ -8,7 +8,7 @@ defmodule Hnmobi.Main.Algolia do
     plug Tesla.Middleware.BaseUrl, "http://hn.algolia.com/api/v1/"
     plug Tesla.Middleware.JSON
 
-    @items 10
+    @items 20
 
     # {
     #     "created_at": "2018-02-02T12:40:34.000Z",

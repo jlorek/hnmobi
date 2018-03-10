@@ -34,6 +34,7 @@ defmodule Hnmobi.Main.Ebook do
       |> Enum.reject(fn article -> article.content_format == :none end)
       |> Enum.map(&Writer.create_html/1)
       |> Enum.filter(&File.exists?(&1.html_path))
+      |> Enum.take(6)
 
     toc_path = prepare_toc(articles)
     html_paths = Enum.map(articles, fn article -> article.html_path end)
@@ -59,21 +60,21 @@ defmodule Hnmobi.Main.Ebook do
       Logger.info "header_path = #{html_path}"
 
       current_time = Timex.now
-      timestamp = current_time |> Timex.to_unix
+      #timestamp = current_time |> Timex.to_unix
+      #time = current_time |> Timex.format!("{h24}:{m}:{s}")
       date = current_time |> Timex.format!("{D}. {Mfull} '{YY}")
-      time = current_time |> Timex.format!("{h24}:{m}:{s}")
 
       case File.open html_path, [:write, :utf8] do
         {:ok, html_handle} ->
-          IO.write html_handle, "<html><head><title>hackernews.mobi ##{timestamp}</title></head><body>"
+          IO.write html_handle, "<html><head><title>hackernews.mobi - #{date}</title></head><body>"
           IO.write html_handle, "<h1>hackernews.mobi</h1>"
           IO.write html_handle, "<img src=\"https://t2.rbxcdn.com/fe91a04c36cb2552ea36e4cf36598264\" />"
-          IO.write html_handle, "<h3>Issue #{date}</h3>"
-          IO.write html_handle, "<h3>Generated at #{time} (UTC)</h3>"
+          IO.write html_handle, "<div>Issue #{date}</div>"
+          #IO.write html_handle, "<p>Generated at #{time} (UTC)</p>"
           File.close html_handle
           html_path
         _ ->
-          Logger.error "Could not generate header html"
+          Logger.error("Could not generate header html file")
           nil
       end
   end
@@ -84,7 +85,9 @@ defmodule Hnmobi.Main.Ebook do
     
     {:ok, html_handle} = File.open html_path, [:write, :utf8]
     IO.write html_handle, "<h1 style=\"page-break-before:always\">Articles</h1>"
-    Enum.each articles, &IO.write(html_handle, "<h2># <a href=\"##{&1.hnid}\">#{&1.title}</a></h2>")
+    IO.write html_handle, "<ul>"
+    Enum.each articles, &IO.write(html_handle, "<li>❂ <a href=\"##{&1.hnid}\">#{&1.title}</a></li>")
+    IO.write html_handle, "<ul>"
     File.close html_handle
     html_path
   end
@@ -92,8 +95,9 @@ defmodule Hnmobi.Main.Ebook do
   defp prepare_footer() do
     html_path = Temp.path! %{suffix: ".html"}
     Logger.info "footer_path = #{html_path}"
-    
     {:ok, html_handle} = File.open html_path, [:write, :utf8]
+    IO.write html_handle, "<h1 style=\"page-break-before:always\">Till next time</h1>"
+    IO.write html_handle, "<div>To update your delivery settings visit <a href=\"http://www.hackernews.mobi\">hackernews.mobi</a></div>"
     IO.write html_handle, "</body></html>"
     File.close html_handle
     html_path
