@@ -70,8 +70,8 @@ defmodule Hnmobi.Main.Ebook do
           #IO.write html_handle, "<h1>hackernews.mobi</h1>"
           #IO.write html_handle, "<img src=\"https://t2.rbxcdn.com/fe91a04c36cb2552ea36e4cf36598264\" />"
           IO.write html_handle, "<h1>Issue #{date}</h1>"
-          #logo_path = Hnmobi.Router.Helpers.static_path("images/ebook_logo.jog")
-          IO.write html_handle, "<img src=\"http://www.hackernews.mobi/images/ebook_logo.jpg\" />"
+          logo_path = "#{HnmobiWeb.Endpoint.url}/images/ebook_logo.jpg"
+          IO.write html_handle, "<img src=\"#{logo_path}\" />"
           IO.write html_handle, "<div>Welcome to hackernews.mobi</div>"
           IO.write html_handle, "<div>Enjoy your read</div>"
           #IO.write html_handle, "<div>Issue #{date}</div>"
