@@ -97,7 +97,10 @@ defmodule Hnmobi.Main.Sanitizer do
       attribute_name = get_attribute_name(attr)
       attribute_value = get_attribute_value(attr)
       case attribute_name do
-        "src" -> {"src", String.splitter(attribute_value, "%20") |> Enum.take(1)}
+        "src" ->
+          fixed_src = String.splitter(attribute_value, "%20") |> Enum.take(1)
+          Logger.info("Fixed image source is '#{fixed_src}'.")
+          {"src", fixed_src}
         _ -> attr
       end
     end)
