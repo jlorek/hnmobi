@@ -19,7 +19,7 @@ defmodule Hnmobi.Main.Scraper do
       _ -> article
     end
 
-    article |> remove_short_content() |> calculate_reading_time()
+    article |> remove_short_and_long_content() |> calculate_reading_time()
   end
 
   defp decide_engine(%{:url => url, :title => title}) do
@@ -61,11 +61,12 @@ defmodule Hnmobi.Main.Scraper do
     skip
   end
 
-  defp remove_short_content(article) do
+  defp remove_short_and_long_content(article) do
     words = String.splitter(article.content, " ") |> Enum.count()
     too_short = (words < @words_per_minute)
+    too_long = (words > @words_per_minute * 19)
 
-    case too_short do
+    case (too_short || too_long) do
       # reset the content format to avoid further processing
       true -> %{article | content: "", content_format: :none}
       false -> article
