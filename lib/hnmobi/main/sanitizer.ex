@@ -6,7 +6,7 @@ defmodule Hnmobi.Main.Sanitizer do
       nil
     else
       Floki.parse(html)
-      |> Floki.map(&fix_img_srcset/1)
+      |> Floki.map(&fix_adaptive_img_src/1)
       |> Floki.map(&remove_iframe_and_embed/1)
       |> Floki.raw_html()
     end
@@ -56,14 +56,15 @@ defmodule Hnmobi.Main.Sanitizer do
     end
   end
 
-  defp fix_img_srcset({name, attrs} = element) do
+  defp fix_adaptive_img_src({name, attrs} = element) do
     case name do
       "img" ->
         srcset_found = Enum.any?(attrs, fn attr -> elem(attr, 0) == "srcset" end)
-
-        if srcset_found do
-          Logger.warn("Found one of there srcset fancy bitches!")
-          {name, fix_adaptive_img_attributes(attrs)}
+        data_srcset_found = Enum.any?(attrs, fn attr -> elem(attr, 0) == "data-srcset" end)
+        adaptive_src_found = Enum.any?(attrs, fn attr -> elem(attr, 0) == "src" && String.contains?(elem(attr, 1), "%20http") end)
+        if (srcset_found || data_srcset_found || adaptive_src_found) do
+          Logger.warn("Found adaptive image, trying to fix it.")
+          {name, fix_adaptive_img_src_attribute(attrs)}
         else
           element
         end
@@ -73,12 +74,12 @@ defmodule Hnmobi.Main.Sanitizer do
     end
   end
 
-  defp fix_adaptive_img_attributes(attrs) do
+  defp fix_adaptive_img_src_attribute(attrs) do
     Enum.map(attrs, fn attr ->
       attribute_name = elem(attr, 0)
-
+      attribute_value = elem(attr, 1)
       case attribute_name do
-        "src" -> {"src", String.splitter(elem(attr, 1), "%20") |> Enum.take(1)}
+        "src" -> {"src", String.splitter(attribute_value, "%20") |> Enum.take(1)}
         _ -> attr
       end
     end)
