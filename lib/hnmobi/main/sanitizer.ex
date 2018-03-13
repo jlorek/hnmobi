@@ -63,11 +63,11 @@ defmodule Hnmobi.Main.Sanitizer do
   defp remove_iframe_and_embed({name, _attrs} = element) do
     case name do
       "iframe" ->
-        Logger.info("Found one of those <iframe> tags - EVIL!")
+        Logger.warn("Found one of those <iframe> tags - EVIL!")
         {"div", []}
 
       "embed" ->
-        Logger.info("Found one of those <embed> tags - ZAP!")
+        Logger.warn("Found one of those <embed> tags - ZAP!")
         {"div", []}
 
       _ ->

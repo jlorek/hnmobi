@@ -26,7 +26,8 @@ defmodule Hnmobi.Main.Scraper do
     cond do
       skip_url?(url) -> :none
       skip_title?(title) -> :none
-      String.match?(url, ~r/http[s]*:\/\/[www\.]*github.com/) -> :github
+      String.match?(url, ~r/https*:\/\/(www\.)*github.com/) -> :github
+      String.match?(url, ~r/https*:\/\/android-developers.googleblog.com/) -> :mercury
       #true -> :mercury
       true -> :mozilla
     end
@@ -64,7 +65,15 @@ defmodule Hnmobi.Main.Scraper do
   defp remove_short_and_long_content(article) do
     words = String.splitter(article.content, " ") |> Enum.count()
     too_short = (words < @words_per_minute)
-    too_long = (words > @words_per_minute * 19)
+    too_long = (words > @words_per_minute * 25)
+
+    if (too_short) do
+      Logger.info("Article '#{article.title}' was rejected because #{words} words is too short.")
+    end
+
+    if (too_long) do
+      Logger.info("Article '#{article.title}' was rejected because #{words} words is too long.")      
+    end
 
     case (too_short || too_long) do
       # reset the content format to avoid further processing
