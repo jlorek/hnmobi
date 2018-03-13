@@ -7,6 +7,8 @@ defmodule Hnmobi.Main.Sanitizer do
     else
       Floki.parse(html)
       |> Floki.map(&fix_adaptive_img_src/1)
+      |> Floki.map(&fix_invalid_img_src/1)
+      |> Floki.map(&fix_span_images/1)
       |> Floki.map(&remove_iframe_and_embed/1)
       |> Floki.raw_html()
     end
@@ -68,7 +70,6 @@ defmodule Hnmobi.Main.Sanitizer do
         else
           element
         end
-
       _ ->
         element
     end
@@ -83,5 +84,41 @@ defmodule Hnmobi.Main.Sanitizer do
         _ -> attr
       end
     end)
+  end
+
+  # these can be found here:
+  # https://www.theverge.com/2018/2/5/16966530/intel-vaunt-smart-glasses-announced-ar-video
+  defp fix_span_images({name, attrs} = element) do
+    case name do
+      "span" ->
+        data_original_attribute = Enum.find(attrs, nil, fn attr -> elem(attr, 0) == "data-original" && String.starts_with?(elem(attr, 1), "http") end)
+        unless (is_nil(data_original_attribute)) do
+          Logger.warn("Found span image, trying to fix it.")
+          img_src = elem(data_original_attribute, 1)
+          {"img", [{"src", img_src}]}
+        else
+          element
+        end
+      _ ->
+        element
+    end
+  end
+
+  # these can be found here:
+  # https://www.theverge.com/2018/2/5/16966530/intel-vaunt-smart-glasses-announced-ar-video
+  defp fix_invalid_img_src({name, attrs} = element) do
+    case name do
+      "img" ->
+        invalid_src_attribute = Enum.find(attrs, nil, fn attr -> elem(attr, 0) == "src" && !String.starts_with?(elem(attr, 1), "http") end)
+        unless (is_nil(invalid_src_attribute)) do
+          img_src = elem(invalid_src_attribute, 1)
+          Logger.warn("Removed invalid img src attribute '#{img_src}'")
+          {"div", []}
+        else
+          element
+        end
+      _ ->
+        element
+    end
   end
 end
