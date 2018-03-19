@@ -20,8 +20,9 @@ defmodule Hnmobi.Main.Sanitizer do
     |> Floki.raw_html()
   end
 
-  # sometimes flocki returns an array for the attribute values:
+  # sometimes flocki returns a list for the attribute values:
   # https://blog.ycombinator.com/intro-to-the-yc-seed-deck/
+  # dont know whether this is a bug or intended 
   defp get_attribute_value(attr) do
     value = elem(attr, 1)
     if (is_list(value)) do
@@ -32,6 +33,7 @@ defmodule Hnmobi.Main.Sanitizer do
     end
   end
 
+  # attr is a tupel { "attr-name", "attr-value" }
   defp get_attribute_name(attr) do
     elem(attr, 0)
   end
@@ -45,13 +47,18 @@ defmodule Hnmobi.Main.Sanitizer do
   end
 
   defp fix_relative_img_src_attribute(attrs, base_url) do
+    base_url = unless (String.ends_with?(base_url, "/")) do base_url <> "/" else base_url end
+
     Enum.map(attrs, fn attr ->
       attribute_name = get_attribute_name(attr)
       case attribute_name do
         "src" ->
           attribute_value = get_attribute_value(attr)
           if (String.starts_with?(attribute_value, "undefined")) do
-            { "src", String.replace(attribute_value, "undefined", base_url) }
+            Logger.info("Found relative img-src '#{attribute_value}'")            
+            absolute_src = String.replace(attribute_value, "undefined", base_url)
+            Logger.info("Using absolute img-src '#{absolute_src}'")
+            { "src", absolute_src }
           else
             attr
           end
@@ -125,6 +132,7 @@ defmodule Hnmobi.Main.Sanitizer do
     end
   end
 
+  # sometimes base64 encoded images
   # these can be found here:
   # https://www.theverge.com/2018/2/5/16966530/intel-vaunt-smart-glasses-announced-ar-video
   defp fix_invalid_img_src({name, attrs} = element) do
@@ -133,7 +141,7 @@ defmodule Hnmobi.Main.Sanitizer do
         invalid_src_attribute = Enum.find(attrs, nil, fn attr -> get_attribute_name(attr) == "src" && !String.starts_with?(get_attribute_value(attr), "http") end)
         unless (is_nil(invalid_src_attribute)) do
           img_src = get_attribute_value(invalid_src_attribute)
-          Logger.warn("Removed invalid img src attribute '#{img_src}'")
+          Logger.warn("Removed invalid img with src attribute '#{img_src}'")
           {"div", []}
         else
           element

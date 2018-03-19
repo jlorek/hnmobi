@@ -9,8 +9,13 @@ defmodule Hnmobi.Main.Scraper do
   @words_per_minute 275  
 
   def scrape(%{:url => _url} = article) do
+
+    Logger.info("Starting to scrape HNID '#{article.hnid}'")
+    Logger.info("Title = '#{article.title}'")
+    Logger.info("Url = '#{article.url}'")
+
     engine = decide_engine(article)
-    Logger.info("Using '#{engine}' for '#{article.url}'")
+    Logger.info("Engine = '#{engine}'")
 
     article = case engine do
       :github -> Github.get_content(article)
@@ -65,12 +70,14 @@ defmodule Hnmobi.Main.Scraper do
   defp remove_short_and_long_content(article) do
     words = String.splitter(article.content, " ") |> Enum.count()
     too_short = (words < @words_per_minute)
-    too_long = (words > @words_per_minute * 25)
+    too_long = (words > @words_per_minute * 19)
 
     if (too_short) do
       Logger.info("Article '#{article.title}' was rejected because #{words} words is too short.")
     end
 
+    # useful for articles like this, that yield in a 29min to read whole blog scrape
+    # http://jordi.inversethought.com/blog/advent-of-d/#day18
     if (too_long) do
       Logger.info("Article '#{article.title}' was rejected because #{words} words is too long.")      
     end
