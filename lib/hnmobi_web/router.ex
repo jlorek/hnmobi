@@ -25,7 +25,8 @@ defmodule HnmobiWeb.Router do
     get "/show/:hnid/:scraper", PageController, :show
     get "/mobi/:hnid", PageController, :mobi
     get "/user/:hash", PageController, :config_user
-    
+    get "/sponsors", PageController, :sponsors
+
     put "/user/update", PageController, :update_user
     post "/top/email", PageController, :create_user
 

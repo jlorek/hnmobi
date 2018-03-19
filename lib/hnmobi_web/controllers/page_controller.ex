@@ -103,6 +103,10 @@ defmodule HnmobiWeb.PageController do
     render(conn, "top.html", items: result)
   end
 
+  def sponsors(conn, _params) do
+    render(conn, "sponsors.html")
+  end
+
   def show(conn, %{"hnid" => hnid, "scraper" => scraper}) do
     article = HackerNews.details(hnid)
 
@@ -112,7 +116,7 @@ defmodule HnmobiWeb.PageController do
         |> put_flash(:error, "HNID #{hnid} has some missing properties")
         |> redirect(to: "/top")
       false ->
-        content = case scraper do 
+        content = case scraper do
           "mercury" -> Mercury.get_content(article.url)
           "readability" -> Readability.summarize(article.url).article_html
           "mozilla" -> Mozilla.get_content(article.url)
