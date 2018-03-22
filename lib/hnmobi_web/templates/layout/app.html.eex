@@ -70,7 +70,7 @@
               <a href="<%= page_path(@conn, :top) %>">Articles</a> |
               <a href="<%= debug_path(@conn, :index) %>">Debug</a>
           <% end %>
-          # build with <a href="https://en.wikipedia.org/wiki/Darmstadt">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by <a href="https://twitter.com/jsbeckr">jens</a> &amp; <a href="https://twitter.com/jnslrk">jens</a></span>
+          # build with <a href="https://elixir-lang.org">💖</a> &amp; <a href="http://phoenixframework.org">🐦🔥</a> by two friends</span>
       </footer>
 
     </div>
