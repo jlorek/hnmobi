@@ -24,7 +24,11 @@ defmodule Hnmobi.Main.Scraper do
       _ -> article
     end
 
-    article |> remove_short_and_long_content() |> calculate_reading_time()
+    unless (engine == :none) do
+      article |> remove_short_and_long_content() |> calculate_reading_time()
+    else
+      article
+    end
   end
 
   defp decide_engine(%{:url => url, :title => title}) do
@@ -42,6 +46,7 @@ defmodule Hnmobi.Main.Scraper do
     skip = cond do
       is_nil(url) -> true
       url == "" -> true
+      String.contains?(url, "github.com") -> true
       String.contains?(url, "gist.github.com") -> true
       String.contains?(url, "twitter.com") -> true
       String.contains?(url, "youtube.com") -> true
