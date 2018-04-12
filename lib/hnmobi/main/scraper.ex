@@ -46,6 +46,7 @@ defmodule Hnmobi.Main.Scraper do
     skip = cond do
       is_nil(url) -> true
       url == "" -> true
+      String.contains?(url, "googlesource.com") -> true
       String.contains?(url, "github.com") -> true
       String.contains?(url, "gist.github.com") -> true
       String.contains?(url, "twitter.com") -> true
