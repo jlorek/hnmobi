@@ -36,6 +36,8 @@ defmodule HnmobiWeb.Router do
     get "/debug/download", DebugController, :download
     get "/debug/send/:email", DebugController, :send_email
     get "/debug/daily/:email", DebugController, :send_daily
+
+    get "/*path", CatchAllController, :index
   end
 
   # Other scopes may use custom stacks.
